@@ -1,0 +1,11 @@
+export enum MapType {
+    ARCHIPELAGO = 0,
+    INLAND_SEA = 1,
+    HIGHLAND = 2,
+    ISLANDS = 3,
+    SMALL_CONTINENTS = 4,
+    CONTINENTS = 5,
+    CONTINENTS_ISLANDS = 6,
+    SUPER_CONTINENT = 7,
+    LAKES = 8,
+}
