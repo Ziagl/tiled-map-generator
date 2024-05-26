@@ -3,6 +3,7 @@
 import { MapSize } from "./enums/MapSize";
 import { MapType } from "./enums/MapType";
 import { HighlandGenerator } from "./generators/HighlandGenerator";
+import { RandomGenerator } from "./generators/RandomGenerator";
 import { IMapGenerator } from "./interfaces/IMapGenerator";
 
 export class Generator
@@ -35,23 +36,25 @@ export class Generator
         }
     }
 
-    public generateMap(type:MapType, size:MapSize, min:number = 1, max:number = 9) {
+    public generateMap(type:MapType, size:MapSize) {
         let generator: IMapGenerator;
 
         switch(type) {
             case MapType.ARCHIPELAGO:
             case MapType.INLAND_SEA:
             case MapType.HIGHLAND:
+                generator = new HighlandGenerator(); break;
             case MapType.ISLANDS:
             case MapType.SMALL_CONTINENTS:
             case MapType.CONTINENTS:
             case MapType.CONTINENTS_ISLANDS:
             case MapType.SUPER_CONTINENT:
             case MapType.LAKES:
-                generator = new HighlandGenerator();
+            default:
+                generator = new RandomGenerator();
         }
 
-        this._map = generator.generate(size, min, max);
+        this._map = generator.generate(size);
         this._map_x = generator.rows;
         this._map_y = generator.columns;
     }

@@ -8,10 +8,8 @@ export class ContinentsIslandsGenerator implements IMapGenerator {
     public rows: number = 0;
     public columns: number = 0;
     size:MapSize = MapSize.TINY;
-    min: number = 0;
-    max: number = 0;
 
-    generate(size: MapSize, min: number, max: number): number[][] {
+    generate(size: MapSize): number[][] {
         throw new Error("Method not implemented.");
     }
 }

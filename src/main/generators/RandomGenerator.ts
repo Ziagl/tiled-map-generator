@@ -1,20 +1,20 @@
 import { MapSize } from "../enums/MapSize";
 import { MapType } from "../enums/MapType";
+import { TileType } from "../enums/TileType";
 import { IMapGenerator } from "../interfaces/IMapGenerator";
 import { Tile } from "./Tile";
 import { Utils } from "./Utils";
 import { Grid, rectangle } from 'honeycomb-grid'
 
-export class HighlandGenerator implements IMapGenerator {
+export class RandomGenerator implements IMapGenerator {
     public readonly type:MapType = MapType.HIGHLAND;
     public rows: number = 0;
     public columns: number = 0;
     size:MapSize = MapSize.TINY;
-    min: number = 0;
-    max: number = 0;
 
     public generate(size: MapSize): number[][] {
         this.size = size;
+        var [min, max] = Utils.getMinMaxOfEnum(TileType);
         const [rows, columns] = Utils.convertMapSize(this.size);
         this.rows = rows;
         this.columns = columns;
@@ -24,7 +24,7 @@ export class HighlandGenerator implements IMapGenerator {
 
         // compute grid
         grid.forEach((tile) => {
-            tile.type = Utils.randomNumber(this.min, this.max);
+            tile.type = Utils.randomNumber(min, max);
         });
         
         // create empty map

@@ -25,4 +25,14 @@ export class Utils {
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    // gets the minimal and maximal values of an enum
+    public static getMinMaxOfEnum(e: object): [min: number, max: number] {
+        const values = Object.keys(e)
+            .map(k => k === "" ? NaN : +k)
+            .filter(k => !isNaN(k))
+            .sort((k1, k2) => k1 - k2);
+    
+        return [values[0] ?? 0, values[values.length - 1] ?? 0];
+    }
 }
