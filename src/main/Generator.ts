@@ -35,7 +35,7 @@ export class Generator
         }
     }
 
-    public generateMap(type:MapType, size:MapSize, min:number = 0, max:number = 9) {
+    public generateMap(type:MapType, size:MapSize, min:number = 1, max:number = 9) {
         let generator: IMapGenerator;
 
         switch(type) {

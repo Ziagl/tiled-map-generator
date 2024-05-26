@@ -1,7 +1,9 @@
 import { MapSize } from "../enums/MapSize";
 import { MapType } from "../enums/MapType";
 import { IMapGenerator } from "../interfaces/IMapGenerator";
+import { Tile } from "./Tile";
 import { Utils } from "./Utils";
+import { Grid, rectangle } from 'honeycomb-grid'
 
 export class HighlandGenerator implements IMapGenerator {
     public readonly type:MapType = MapType.HIGHLAND;
@@ -19,14 +21,22 @@ export class HighlandGenerator implements IMapGenerator {
         this.rows = rows;
         this.columns = columns;
 
+        // create empty grid
+        const grid = new Grid(Tile, rectangle({ width: columns, height: rows }));
+
+        // compute grid
+        grid.forEach((tile) => {
+            tile.type = Utils.randomNumber(this.min, this.max);
+        });
+        
         // create empty map
         let map = new Array(rows).fill([]).map(() => new Array(columns));
         
-        // add 
+        // convert hexagon grid to 2d map
         for(let i = 0; i < rows; ++i) {
             for(let j = 0; j < columns; ++j) {
                 // @ts-ignore
-                map[i][j] = Utils.randomNumber(this.min, this.max);
+                map[i][j] = grid.getHex({ col: j, row: i }).type;
             }
         }
 

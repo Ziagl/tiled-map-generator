@@ -35,6 +35,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@kayahr/tiled": "^0.0.1"
+    "@kayahr/tiled": "^0.0.1",
+    "honeycomb-grid": "^4.1.5"
   }
 }
