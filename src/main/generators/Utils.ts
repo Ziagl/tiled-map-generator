@@ -1,4 +1,6 @@
+import { Direction, Grid } from "honeycomb-grid";
 import { MapSize } from "../enums/MapSize";
+import { Tile } from "./Tile";
 
 export class Utils {
 
@@ -34,5 +36,63 @@ export class Utils {
             .sort((k1, k2) => k1 - k2);
     
         return [values[0] ?? 0, values[values.length - 1] ?? 0];
+    }
+
+    public static randomTile(grid: Grid<Tile>, rows: number, columns: number) :Tile|undefined {
+        const row = this.randomNumber(0, rows - 1);
+        const column = this.randomNumber(0, columns - 1);
+        return grid.getHex({ col: column, row: row });
+    }
+
+    public static neighbors(grid: Grid<Tile>, coordinates: [q: number, r: number]) :Tile[] {
+        let neighbors:Tile[] = [];
+
+        if(grid.neighborOf(coordinates, Direction.N, { allowOutside: false }) !== undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.N));
+        }
+        if(grid.neighborOf(coordinates, Direction.NE, { allowOutside: false }) !== undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.NE));
+        }
+        if(grid.neighborOf(coordinates, Direction.E, { allowOutside: false }) != undefined) {
+           neighbors.push(grid.neighborOf(coordinates, Direction.E)); 
+        }
+        if(grid.neighborOf(coordinates, Direction.SE, { allowOutside: false }) != undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.SE));
+        }
+        if(grid.neighborOf(coordinates, Direction.S, { allowOutside: false }) != undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.S));
+        }
+        if(grid.neighborOf(coordinates, Direction.SW, { allowOutside: false }) != undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.SW));
+        }
+        if(grid.neighborOf(coordinates, Direction.W, { allowOutside: false }) != undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.W));
+        }
+        if(grid.neighborOf(coordinates, Direction.NW, { allowOutside: false }) != undefined) {
+            neighbors.push(grid.neighborOf(coordinates, Direction.NW));
+        }
+
+        return neighbors;
+    }
+
+    public static randomNeighbors(grid: Grid<Tile>, coordinates: [q: number, s: number]) :Tile[] {
+        let allNeighbors = this.neighbors(grid, coordinates);
+        let neighbors:Tile[] = [];
+
+        // randomly select neighbors
+        allNeighbors.forEach((neighbor) => {
+            if(this.randomNumber(0, 1) === 0) { // 50 : 50 chance
+                neighbors.push(neighbor);
+            }
+        });
+
+        return neighbors;
+    }
+
+    public static shuffle<T>(arr: T[]): T[] {
+        return arr
+            .map((a) => ({ sort: Math.random(), value: a }))
+            .sort((a, b) => a.sort - b.sort)
+            .map((a) => a.value);
     }
 }

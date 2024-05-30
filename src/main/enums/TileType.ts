@@ -1,12 +1,15 @@
 export enum TileType {
     DEEP_WATER = 1,
     SHALLOW_WATER = 2,
-    SAND = 3,
-    GRASS = 4,
+    DESERT = 3,
+    PLAIN = 4,
     FOREST = 5,
     SWAMP = 6,
     JUNGLE = 7,
     HILLS = 8,
     MOUNTAIN = 9,
-    SNOW = 10,
+    SNOW_PLAIN = 10,
+    SNOW_HILLS = 11,
+    SNOW_MOUNTAIN = 12,
+    SNOW_WATER = 13,
 }
