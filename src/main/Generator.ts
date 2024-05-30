@@ -3,6 +3,7 @@
 import { MapSize } from "./enums/MapSize";
 import { MapType } from "./enums/MapType";
 import { HighlandGenerator } from "./generators/HighlandGenerator";
+import { InlandSeaGenerator } from "./generators/InlandSeaGenerator";
 import { RandomGenerator } from "./generators/RandomGenerator";
 import { IMapGenerator } from "./interfaces/IMapGenerator";
 
@@ -42,6 +43,7 @@ export class Generator
         switch(type) {
             case MapType.ARCHIPELAGO:
             case MapType.INLAND_SEA:
+                generator = new InlandSeaGenerator(); break;
             case MapType.HIGHLAND:
                 generator = new HighlandGenerator(); break;
             case MapType.ISLANDS:
