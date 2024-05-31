@@ -5,6 +5,7 @@ import { MapType } from "./enums/MapType";
 import { HighlandGenerator } from "./generators/HighlandGenerator";
 import { InlandSeaGenerator } from "./generators/InlandSeaGenerator";
 import { RandomGenerator } from "./generators/RandomGenerator";
+import { SuperContinentGenerator } from "./generators/SuperContinentGenerator";
 import { IMapGenerator } from "./interfaces/IMapGenerator";
 
 export class Generator
@@ -51,6 +52,7 @@ export class Generator
             case MapType.CONTINENTS:
             case MapType.CONTINENTS_ISLANDS:
             case MapType.SUPER_CONTINENT:
+                generator = new SuperContinentGenerator(); break;
             case MapType.LAKES:
             default:
                 generator = new RandomGenerator();

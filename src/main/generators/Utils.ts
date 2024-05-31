@@ -4,6 +4,7 @@ import { Tile } from "./Tile";
 import { TileType } from "../enums/TileType";
 
 export class Utils {
+    public static readonly MAXLOOPS = 10000;
 
     // converts a map size type to 2d dimensional width and height
     public static convertMapSize(size:MapSize):[rows:number, columns:number] {
@@ -107,11 +108,11 @@ export class Utils {
     }
     
     // expand given lakeTiles randomly till number of waterTiles were placed
-    public static expandWater(grid: Grid<Tile>, lakeTiles: Tile[], waterTiles: number, maxLoops: number) {
-        let loopMax = maxLoops;
+    public static expandWater(grid: Grid<Tile>, lakeTiles: Tile[], waterTiles: number) {
+        let loopMax = Utils.MAXLOOPS;
         do {
             lakeTiles = Utils.shuffle<Tile>(lakeTiles);
-            lakeTiles.forEach((tile) => {
+            lakeTiles.forEach(tile => {
                 const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
                 neighbors.forEach(neighbor => {
                     if(neighbor.type != TileType.SHALLOW_WATER && neighbor.type != TileType.DEEP_WATER && waterTiles > 0) {
@@ -125,9 +126,28 @@ export class Utils {
         } while(waterTiles > 0 && loopMax > 0);
     }
 
+    // expand given landTiles randomly till number of landTiles were placed
+    public static expandLand(grid: Grid<Tile>, plainTiles: Tile[], landTiles: number) {
+        let loopMax = Utils.MAXLOOPS;
+        do {
+            plainTiles = Utils.shuffle<Tile>(plainTiles);
+            plainTiles.forEach(tile => {
+                const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+                neighbors.forEach(neighbor => {
+                    if(neighbor.type != TileType.PLAIN && landTiles > 0) {
+                        neighbor.type = TileType.PLAIN;
+                        --landTiles;
+                        plainTiles.push(neighbor);
+                    }
+                });
+            });
+            --loopMax;
+        } while(landTiles > 0 && loopMax > 0);
+    }
+
     // expand given hillTiles randomly till number of hillTiles were placed
-    public static expandHills(grid: Grid<Tile>, mountainRangesTiles: Tile[], hillTiles: number, maxLoops: number) {
-        let loopMax = maxLoops;
+    public static expandHills(grid: Grid<Tile>, mountainRangesTiles: Tile[], hillTiles: number) {
+        let loopMax = Utils.MAXLOOPS;
         do {
             mountainRangesTiles = Utils.shuffle<Tile>(mountainRangesTiles);
             mountainRangesTiles.forEach((tile) => {
@@ -148,8 +168,8 @@ export class Utils {
     }
 
     // turn hills into mountains till number of mountains is reached
-    public static hillsToMountains(grid: Grid<Tile>, rows: number, columns: number, mountainTiles: number, maxLoops: number) {
-        let loopMax = maxLoops;
+    public static hillsToMountains(grid: Grid<Tile>, rows: number, columns: number, mountainTiles: number) {
+        let loopMax = Utils.MAXLOOPS;
         do{
             let tile = Utils.randomTile(grid, rows, columns);
             if (tile != undefined && (tile.type === TileType.HILLS)) {
@@ -186,14 +206,14 @@ export class Utils {
     }
 
     // add random tiles of given type
-    public static addRandomTileSeed(grid: Grid<Tile>, rows: number, columns: number, lakeTiles: Tile[], type: TileType, count: number, maxCount: number, maxLoops: number) {
+    public static addRandomTileSeed(grid: Grid<Tile>, rows: number, columns: number, lakeTiles: Tile[], type: TileType, oldType: TileType, count: number, maxCount: number) {
         for(let i = 0; i < count; ++i) {
-            let loopMax = maxLoops;
+            let loopMax = Utils.MAXLOOPS;
             let tile: Tile|undefined = undefined;
             do {
                 tile = Utils.randomTile(grid, rows, columns);
                 --loopMax;
-            } while(loopMax > 0 && (tile === undefined || tile.type != TileType.PLAIN));
+            } while(loopMax > 0 && (tile === undefined || tile.type != oldType));
             if(tile != undefined) {
                 tile.type = type;
                 --maxCount;
@@ -203,8 +223,8 @@ export class Utils {
     }
 
     // converts given number of plain tiles to given tile type
-    public static addRandomTile(grid: Grid<Tile>, rows: number, columns: number, type: TileType, count: number, maxLoops: number) {
-        let loopMax = maxLoops;
+    public static addRandomTile(grid: Grid<Tile>, rows: number, columns: number, type: TileType, count: number) {
+        let loopMax = Utils.MAXLOOPS;
         do {
             let tile = Utils.randomTile(grid, rows, columns);
             if (tile != undefined && tile.type === TileType.PLAIN) {
@@ -214,8 +234,8 @@ export class Utils {
         } while(count > 0 && loopMax > 0);
     }
 
-    public static addWoodTiles(grid: Grid<Tile>, rows: number, columns: number, count: number, maxLoops: number) {
-        let loopMax = maxLoops;
+    public static addWoodTiles(grid: Grid<Tile>, rows: number, columns: number, count: number) {
+        let loopMax = Utils.MAXLOOPS;
         do {
             let tile = Utils.randomTile(grid, rows, columns);
             if (tile != undefined && tile.type === TileType.PLAIN) {

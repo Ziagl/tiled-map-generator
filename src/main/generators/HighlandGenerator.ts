@@ -13,7 +13,6 @@ export class HighlandGenerator implements IMapGenerator {
     size:MapSize = MapSize.TINY;
 
     // configs for external json?
-    private readonly maxLoops = 10000;
     private readonly factorWater = 0.15;
     private readonly factorMountain = 0.1;
     private readonly factorHills = 0.2;
@@ -40,11 +39,11 @@ export class HighlandGenerator implements IMapGenerator {
         // 2. add randomly lakes
         const lakeCounter = waterTiles / Utils.randomNumber(5,7); // number of lakes (fifth, sixth or seventh or max number of tiles)
         let lakeTiles:Tile[] = [];
-        Utils.addRandomTileSeed(grid, this.rows, this.columns, lakeTiles, TileType.SHALLOW_WATER, lakeCounter, waterTiles, this.maxLoops);
+        Utils.addRandomTileSeed(grid, this.rows, this.columns, lakeTiles, TileType.SHALLOW_WATER, TileType.PLAIN, lakeCounter, waterTiles);
 
         // 3. expand lakes
         //Utils.expandWater(grid, lakeTiles, waterTiles, this.maxLoops);
-        let loopMax = this.maxLoops;
+        let loopMax = Utils.MAXLOOPS;
         do {
             lakeTiles = Utils.shuffle<Tile>(lakeTiles);
             lakeTiles.forEach((tile) => {
@@ -70,25 +69,25 @@ export class HighlandGenerator implements IMapGenerator {
         const hillCounter = hillTiles / Utils.randomNumber(5,7); // number of mountain ranges
         let mountainRangesTiles:Tile[] = [];
         // 5. create random hills
-        Utils.addRandomTileSeed(grid, this.rows, this.columns, mountainRangesTiles, TileType.HILLS, hillCounter, hillTiles, this.maxLoops);
+        Utils.addRandomTileSeed(grid, this.rows, this.columns, mountainRangesTiles, TileType.HILLS, TileType.PLAIN, hillCounter, hillTiles);
 
         // 6. expand hills
-        Utils.expandHills(grid, mountainRangesTiles, hillTiles, this.maxLoops);
+        Utils.expandHills(grid, mountainRangesTiles, hillTiles);
 
         // 7. create mountain tiles
-        Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles, this.maxLoops);
+        Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles);
 
         // 8. create random deserts
         let desertTiles = grid.size * this.factorDesert;
-        Utils.addRandomTile(grid, this.rows, this.columns, TileType.DESERT, desertTiles, this.maxLoops);
+        Utils.addRandomTile(grid, this.rows, this.columns, TileType.DESERT, desertTiles);
 
         // 9. add forst and jungle
         let woodTiles = grid.size * this.factorWood;
-        Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles, this.maxLoops);
+        Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
 
         // 10. add swamp
         let swampTiles = grid.size * this.factorSwamp;
-        Utils.addRandomTile(grid, this.rows, this.columns, TileType.SWAMP, swampTiles, this.maxLoops);
+        Utils.addRandomTile(grid, this.rows, this.columns, TileType.SWAMP, swampTiles);
 
         // 11. snow
         Utils.createSnowTiles(grid, this.rows);
