@@ -2,6 +2,7 @@
 
 import { MapSize } from "./enums/MapSize";
 import { MapType } from "./enums/MapType";
+import { ContinentsGenerator } from "./generators/ContinentsGenerator";
 import { HighlandGenerator } from "./generators/HighlandGenerator";
 import { InlandSeaGenerator } from "./generators/InlandSeaGenerator";
 import { LakesGenerator } from "./generators/LakesGenerator";
@@ -51,6 +52,7 @@ export class Generator
             case MapType.ISLANDS:
             case MapType.SMALL_CONTINENTS:
             case MapType.CONTINENTS:
+                generator = new ContinentsGenerator(); break;
             case MapType.CONTINENTS_ISLANDS:
             case MapType.SUPER_CONTINENT:
                 generator = new SuperContinentGenerator(); break;

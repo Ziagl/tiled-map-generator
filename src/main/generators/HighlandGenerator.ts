@@ -77,17 +77,6 @@ export class HighlandGenerator implements IMapGenerator {
         // 11. snow
         Utils.createSnowTiles(grid, this.rows);
 
-        // create empty map
-        let map = new Array(rows).fill([]).map(() => new Array(columns));
-        
-        // convert hexagon grid to 2d map
-        for(let i = 0; i < rows; ++i) {
-            for(let j = 0; j < columns; ++j) {
-                // @ts-ignore
-                map[i][j] = grid.getHex({ col: j, row: i }).type;
-            }
-        }
-
-        return map;
+        return Utils.hexagonToArray(grid, this.rows, this.columns);
     }
 }

@@ -5,6 +5,7 @@ import { TileType } from "../enums/TileType";
 
 export class Utils {
     public static readonly MAXLOOPS = 10000;
+    public static readonly MAXCONTINENTSEED = 999;
 
     // converts a map size type to 2d dimensional width and height
     public static convertMapSize(size:MapSize):[rows:number, columns:number] {
@@ -167,6 +168,10 @@ export class Utils {
         } while(hillTiles > 0 && loopMax > 0);
     }
 
+    /*public static expandContinents() {
+
+    }*/
+
     // turn hills into mountains till number of mountains is reached
     public static hillsToMountains(grid: Grid<Tile>, rows: number, columns: number, mountainTiles: number) {
         let loopMax = Utils.MAXLOOPS;
@@ -222,6 +227,21 @@ export class Utils {
         }
     }
 
+    // add random continents of given type
+    public static addRandomContinentSeed(grid: Grid<Tile>, rows: number, columns: number, oldType: TileType, count: number) {
+        for(let i = 0; i < count; ++i) {
+            let loopMax = Utils.MAXLOOPS;
+            let tile: Tile|undefined = undefined;
+            do {
+                tile = Utils.randomTile(grid, rows, columns);
+                --loopMax;
+            } while(loopMax > 0 && (tile === undefined || tile.type != oldType));
+            if(tile != undefined) {
+                tile.type = Utils.MAXCONTINENTSEED - i;
+            }
+        }
+    }
+
     // converts given number of plain tiles to given tile type
     public static addRandomTile(grid: Grid<Tile>, rows: number, columns: number, type: TileType, count: number) {
         let loopMax = Utils.MAXLOOPS;
@@ -231,6 +251,7 @@ export class Utils {
                 tile.type = type;
                 --count;
             }
+            --loopMax;
         } while(count > 0 && loopMax > 0);
     }
 
@@ -252,6 +273,7 @@ export class Utils {
                 }
                 --count;
             }
+            --loopMax;
         } while(count > 0 && loopMax > 0);
     }
 
@@ -296,5 +318,21 @@ export class Utils {
             .map((a) => ({ sort: Math.random(), value: a }))
             .sort((a, b) => a.sort - b.sort)
             .map((a) => a.value);
+    }
+
+    // converts a grid into a 2d number array
+    public static hexagonToArray(grid: Grid<Tile>, rows: number, columns: number): number[][] {
+        // create empty map
+        let map = new Array(rows).fill([]).map(() => new Array(columns));
+            
+        // convert hexagon grid to 2d map
+        for(let i = 0; i < rows; ++i) {
+            for(let j = 0; j < columns; ++j) {
+                // @ts-ignore
+                map[i][j] = grid.getHex({ col: j, row: i }).type;
+            }
+        }
+
+        return map;
     }
 }
