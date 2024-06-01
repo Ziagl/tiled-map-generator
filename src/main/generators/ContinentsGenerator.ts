@@ -38,7 +38,7 @@ export class ContinentsGenerator implements IMapGenerator {
         // get maximal number of land tiles
         let landTiles = grid.size * this.factorLand;
         // 2. add randomly continents
-        const continentCounter = Utils.randomNumber(4,9); // number of continents
+        const continentCounter = Utils.randomNumber(2,5); // number of continents
         // set continten seeds to the map with numbering MAXCONTINENTSEED - continentCounter
         Utils.addRandomContinentSeed(grid, this.rows, this.columns, TileType.SHALLOW_WATER, continentCounter);
 

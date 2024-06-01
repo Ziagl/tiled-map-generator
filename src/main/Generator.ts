@@ -7,6 +7,7 @@ import { HighlandGenerator } from "./generators/HighlandGenerator";
 import { InlandSeaGenerator } from "./generators/InlandSeaGenerator";
 import { LakesGenerator } from "./generators/LakesGenerator";
 import { RandomGenerator } from "./generators/RandomGenerator";
+import { SmallContinentsGenerator } from "./generators/SmallContinentsGenerator";
 import { SuperContinentGenerator } from "./generators/SuperContinentGenerator";
 import { IMapGenerator } from "./interfaces/IMapGenerator";
 
@@ -51,6 +52,7 @@ export class Generator
                 generator = new HighlandGenerator(); break;
             case MapType.ISLANDS:
             case MapType.SMALL_CONTINENTS:
+                generator = new SmallContinentsGenerator(); break;
             case MapType.CONTINENTS:
                 generator = new ContinentsGenerator(); break;
             case MapType.CONTINENTS_ISLANDS:

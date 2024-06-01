@@ -42,22 +42,7 @@ export class LakesGenerator implements IMapGenerator {
         Utils.addRandomTileSeed(grid, this.rows, this.columns, lakeTiles, TileType.SHALLOW_WATER, TileType.PLAIN, lakeCounter, waterTiles);
 
         // 3. expand lakes
-        //Utils.expandWater(grid, lakeTiles, waterTiles, this.maxLoops);
-        let loopMax = Utils.MAXLOOPS;
-        do {
-            lakeTiles = Utils.shuffle<Tile>(lakeTiles);
-            lakeTiles.forEach((tile) => {
-                const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
-                neighbors.forEach(neighbor => {
-                    if(neighbor.type != TileType.SHALLOW_WATER && neighbor.type != TileType.DEEP_WATER && waterTiles > 0) {
-                        neighbor.type = TileType.SHALLOW_WATER;
-                        --waterTiles;
-                        lakeTiles.push(neighbor);
-                    }
-                });
-            });
-            --loopMax;
-        } while(waterTiles > 0 && loopMax > 0);
+        Utils.expandWater(grid, lakeTiles, waterTiles);
 
         // 4. create deep water tiles
         Utils.shallowToDeepWater(grid);
