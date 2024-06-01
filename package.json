@@ -1,7 +1,7 @@
 {
   "name": "tiled-map-generator",
-  "version": "0.0.1",
-  "description": "A map generator for Tiled Map Editor file format",
+  "version": "0.1.0",
+  "description": "A map generator for Tiled map editor file format",
   "main": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "scripts": {
@@ -19,7 +19,7 @@
     "generator"
   ],
   "author": "ziagl",
-  "license": "MIT",
+  "license": "GNU LESSER GENERAL PUBLIC LICENSE",
   "bugs": {
     "url": "https://github.com/Ziagl/tiled-map-generator/issues"
   },

@@ -1,5 +1,3 @@
-// generates a 2d array that represents a map
-
 import { MapSize } from "./enums/MapSize";
 import { MapType } from "./enums/MapType";
 import { ArchipelagoGenerator } from "./generators/ArchipelagoGenerator";
@@ -14,36 +12,20 @@ import { SmallContinentsGenerator } from "./generators/SmallContinentsGenerator"
 import { SuperContinentGenerator } from "./generators/SuperContinentGenerator";
 import { IMapGenerator } from "./interfaces/IMapGenerator";
 
+// this generator class loads a specific generator (of MapType type)
+// and generates a map with specific ruleset and exports its data
+// print methods are useful for debug purposes
 export class Generator
 {
     private _map:number[][] = [];    // base data of map
     private _map_x:number = 0;       // x dimension
     private _map_y:number = 0;       // y dimension
-    private map_min:number = 0;     // minimal height value
-    private map_max:number = 0;     // maximal height value
-    //private type:tiled.MapOrientation = tiled.MapOrientation.HEXAGONAL;
 
     constructor() {
         this._map = [];
     }
 
-    public initialize(size_x:number, size_y:number, min:number, max:number) {
-        this._map_x = size_x;
-        this._map_y = size_y;
-        this.map_min = min;
-        this.map_max = max;
-        this._map = new Array(this._map_x).fill(undefined).map(() => new Array(this._map_y).fill(0));
-    }
-
-    public generateRandomMap(min:number, max:number) {
-        for (let i = 0; i < this._map_x; i++) {
-            for (let j = 0; j < this._map_y; j++) {
-                // @ts-ignore
-                this.map[i][j] = Utils.randomNumber(this.map_min, this.map_max);
-            }
-        }
-    }
-
+    // generate a map of given type and size
     public generateMap(type:MapType, size:MapSize) {
         let generator: IMapGenerator;
 
@@ -75,10 +57,12 @@ export class Generator
         this._map_y = generator.columns;
     }
 
+    // export generated map
     public exportMap() :[number[], number, number] {
         return [this._map.flat(), this._map_x, this._map_y];
     }
 
+    // print generated map structured (one row as one line)
     public print() :string {
         let response: string = "";
         for (let i=0; i < this._map_x; ++i) {
@@ -92,6 +76,7 @@ export class Generator
         return response;
     }
     
+    // print generated map unstructured
     public print_unstructured() :string {
         return this._map.flat().join(" ");
     }
