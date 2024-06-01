@@ -168,10 +168,6 @@ export class Utils {
         } while(hillTiles > 0 && loopMax > 0);
     }
 
-    /*public static expandContinents() {
-
-    }*/
-
     // turn hills into mountains till number of mountains is reached
     public static hillsToMountains(grid: Grid<Tile>, rows: number, columns: number, mountainTiles: number) {
         let loopMax = Utils.MAXLOOPS;

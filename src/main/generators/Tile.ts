@@ -1,4 +1,5 @@
 import { Orientation, defineHex } from 'honeycomb-grid'
+import { TileType } from '../enums/TileType';
 
 export class Tile extends defineHex({ 
     dimensions: 1,
@@ -6,9 +7,6 @@ export class Tile extends defineHex({
     origin: 'topLeft',
     offset: -1
 }) {
-    get prototypeProp() {
-        return `this property won't be present in the instance, only in the prototype`
-    }
-
-    type: number = 0;
+    
+    type: TileType = TileType.SHALLOW_WATER;
 };
