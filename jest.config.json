@@ -5,5 +5,8 @@
   "collectCoverage": true,
   "collectCoverageFrom": [
       "<rootDir>/lib/main/**/*.js"
+  ],
+  "coveragePathIgnorePatterns": [
+    "index*"
   ]
 }

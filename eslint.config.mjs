@@ -1,6 +1,9 @@
-import config from "eslint-config-standard";
-
-
 export default [
-  ...[].concat(config),
+  {
+      rules: {
+          semi: "error",
+          "prefer-const": "error",
+          "no-unused-vars": "warn",
+      },
+  },
 ];
