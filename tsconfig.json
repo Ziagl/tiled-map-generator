@@ -29,6 +29,7 @@
     "exclude": [
         "lib",
         "node_modules",
-        "doc"
+        "doc",
+        "src/example"
     ]
 }
