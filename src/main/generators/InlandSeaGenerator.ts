@@ -30,7 +30,7 @@ export class InlandSeaGenerator implements IMapGenerator {
         const grid = new Grid(Tile, rectangle({ width: columns, height: rows }));
 
         // 1. create a map with grassland
-        grid.forEach((tile) => {
+        grid.forEach(tile => {
             tile.type = TileType.PLAIN;
         });
 

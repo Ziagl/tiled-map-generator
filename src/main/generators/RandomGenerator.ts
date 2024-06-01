@@ -23,7 +23,7 @@ export class RandomGenerator implements IMapGenerator {
         const grid = new Grid(Tile, rectangle({ width: columns, height: rows }));
 
         // compute grid
-        grid.forEach((tile) => {
+        grid.forEach(tile => {
             tile.type = Utils.randomNumber(min, max);
         });
         

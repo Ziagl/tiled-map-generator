@@ -11,7 +11,4 @@ export class Tile extends defineHex({
     }
 
     type: number = 0;
-
-    // methods always exist in the prototype
-    //customMethod() {}
 };

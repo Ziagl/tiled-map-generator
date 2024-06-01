@@ -2,9 +2,12 @@
 
 import { MapSize } from "./enums/MapSize";
 import { MapType } from "./enums/MapType";
+import { ArchipelagoGenerator } from "./generators/ArchipelagoGenerator";
 import { ContinentsGenerator } from "./generators/ContinentsGenerator";
+import { ContinentsIslandsGenerator } from "./generators/ContinentsIslandsGenerator";
 import { HighlandGenerator } from "./generators/HighlandGenerator";
 import { InlandSeaGenerator } from "./generators/InlandSeaGenerator";
+import { IslandsGenerator } from "./generators/IslandsGenerator";
 import { LakesGenerator } from "./generators/LakesGenerator";
 import { RandomGenerator } from "./generators/RandomGenerator";
 import { SmallContinentsGenerator } from "./generators/SmallContinentsGenerator";
@@ -46,16 +49,19 @@ export class Generator
 
         switch(type) {
             case MapType.ARCHIPELAGO:
+                generator = new ArchipelagoGenerator(); break;
             case MapType.INLAND_SEA:
                 generator = new InlandSeaGenerator(); break;
             case MapType.HIGHLAND:
                 generator = new HighlandGenerator(); break;
             case MapType.ISLANDS:
+                generator = new IslandsGenerator(); break;
             case MapType.SMALL_CONTINENTS:
                 generator = new SmallContinentsGenerator(); break;
             case MapType.CONTINENTS:
                 generator = new ContinentsGenerator(); break;
             case MapType.CONTINENTS_ISLANDS:
+                generator = new ContinentsIslandsGenerator(); break;
             case MapType.SUPER_CONTINENT:
                 generator = new SuperContinentGenerator(); break;
             case MapType.LAKES:

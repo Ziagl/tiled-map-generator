@@ -31,7 +31,7 @@ export class SmallContinentsGenerator implements IMapGenerator {
         const grid = new Grid(Tile, rectangle({ width: columns, height: rows }));
 
         // 1. create a map with water
-        grid.forEach((tile) => {
+        grid.forEach(tile => {
             tile.type = TileType.SHALLOW_WATER;
         });
 
@@ -39,7 +39,7 @@ export class SmallContinentsGenerator implements IMapGenerator {
         let landTiles = grid.size * this.factorLand;
         // 2. add randomly continents
         const continentCounter = Utils.randomNumber(5,9); // number of continents
-        // set continten seeds to the map with numbering MAXCONTINENTSEED - continentCounter
+        // set contintent seeds to the map with numbering MAXCONTINENTSEED - continentCounter
         Utils.addRandomContinentSeed(grid, this.rows, this.columns, TileType.SHALLOW_WATER, continentCounter);
 
         // 3. expand continents without touching other continents
