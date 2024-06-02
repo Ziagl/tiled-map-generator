@@ -1,7 +1,22 @@
 {
-  "name": "tiled-map-generator",
+  "name": "@ziagl/tiled-map-generator",
   "version": "0.1.0",
   "description": "A map generator for Tiled map editor file format",
+  "author": "Werner Ziegelwanger (ziagl)",
+  "license": "GNU LESSER GENERAL PUBLIC LICENSE",
+  "keywords": [
+    "tiled",
+    "map",
+    "generator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ziagl/tiled-map-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Ziagl/tiled-map-generator/issues"
+  },
+  "homepage": "https://github.com/Ziagl/tiled-map-generator#readme",
   "main": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "scripts": {
@@ -9,21 +24,6 @@
     "test:lint": "eslint",
     "test:unit": "jest"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ziagl/tiled-map-generator.git"
-  },
-  "keywords": [
-    "tiled",
-    "map",
-    "generator"
-  ],
-  "author": "ziagl",
-  "license": "GNU LESSER GENERAL PUBLIC LICENSE",
-  "bugs": {
-    "url": "https://github.com/Ziagl/tiled-map-generator/issues"
-  },
-  "homepage": "https://github.com/Ziagl/tiled-map-generator#readme",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "eslint": "^8.57.0",

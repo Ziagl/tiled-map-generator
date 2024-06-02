@@ -4,7 +4,7 @@
 // output is a new map.json file that can be opened with Tiled (https://www.mapeditor.org/)
 // the folder should contain one Tiled map file with name example.json (example given)
 const fs = require('fs');
-const tmg = require('tiled-map-generator');
+const tmg = require('@ziagl/tiled-map-generator');
 
 // generate a new map
 let generator = new tmg.Generator();
