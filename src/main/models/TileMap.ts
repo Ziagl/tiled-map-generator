@@ -2,7 +2,7 @@ import { TileLayer } from "./TileLayer";
 import { TileSet } from "./TileSet";
 
 export class TileMap {
-    public compressionLevel: number;
+    public compressionlevel: number;
     public height: number;
     public hexsidelength: number;
     public infinite: boolean;
@@ -22,7 +22,7 @@ export class TileMap {
     public width: number;
 
     constructor() {
-        this.compressionLevel = -1;
+        this.compressionlevel = -1;
         this.height = 0;
         this.hexsidelength = 0;
         this.infinite = false;

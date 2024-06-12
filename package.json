@@ -1,6 +1,6 @@
 {
   "name": "@ziagl/tiled-map-generator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A map generator for Tiled map editor file format",
   "author": "Werner Ziegelwanger (ziagl)",
   "license": "GNU LESSER GENERAL PUBLIC LICENSE",

@@ -28,12 +28,14 @@ export class Converter
     public generateTiledJson(map:number[], rows: number, columns: number, 
                              imagefile: string, tilewidth: number, tileheight: number,
                              imagewidth: number, imageheight: number, 
-                             tilecount: number, tilecolumns: number):string {
+                             tilecount: number, tilecolumns: number,
+                             transparentcolor: string):string {
         const tileMap = new TileMap();
         tileMap.width = columns;
         tileMap.height = rows;
         tileMap.tilewidth = tilewidth
         tileMap.tileheight = tileheight;
+        tileMap.hexsidelength = tilewidth / 2;
 
         let layer = new TileLayer();
         layer.width = columns;
@@ -51,6 +53,7 @@ export class Converter
         tileset.tilewidth = tilewidth;
         tileset.tileheight = tileheight;
         tileset.image = imagefile;
+        tileset.transparentcolor = transparentcolor;
 
         tileMap.tilesets.push(tileset);
 

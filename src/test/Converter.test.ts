@@ -17,6 +17,6 @@ test('generateTiledJson', () => {
     gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO);
     let converter = new Converter();
     const [map, rows, columns] = gen.exportMap();
-    const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13);
+    const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, "#ffffff");
     expect(result).not.toBeNull();
 });
