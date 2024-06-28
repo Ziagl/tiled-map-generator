@@ -1,7 +1,7 @@
 # tiled-map-generator
 A map generator for Tiled Map Editor (https://www.mapeditor.org/) files.
 
-## Sample of generated map inside Tiled Map Editor:
+## Sample of generated maps inside Tiled Map Editor:
 
 Type: CONTINENTS_ISLANDS, Size: TINY
 ![Alt text](example_images/continents_islands-tiny.png?raw=true "Type: CONTINENTS_ISLANDS, Size: TINY")
