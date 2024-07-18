@@ -9,6 +9,10 @@
     "map",
     "generator"
   ],
+  "files":[
+    "lib",
+    "LICENSE"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Ziagl/tiled-map-generator.git"
