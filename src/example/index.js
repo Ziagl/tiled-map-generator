@@ -18,9 +18,9 @@ const data = fs.readFileSync('example.json', 'utf8');
 const [map, rows, columns] = generator.exportMap();
 const result = converter.convertToTiled(map, rows, columns, data);
 fs.writeFileSync('map.json', result, 'utf-8', (err) => {
-    if (err) {
-        console.error('Error while writing map file:', err);
-    }
+  if (err) {
+    console.error('Error while writing map file:', err);
+  }
 });
 
 // print out map as debug output on console

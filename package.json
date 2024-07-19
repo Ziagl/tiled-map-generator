@@ -9,7 +9,7 @@
     "map",
     "generator"
   ],
-  "files":[
+  "files": [
     "lib",
     "LICENSE"
   ],
@@ -24,9 +24,10 @@
   "main": "lib/main/index.js",
   "types": "lib/main/index.d.ts",
   "scripts": {
-    "build:compile": "tsc",
-    "test:lint": "eslint",
-    "test:unit": "jest"
+    "build": "tsc",
+    "lint": "eslint",
+    "test": "jest",
+    "format": "prettier ./src --write"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
@@ -36,6 +37,7 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "jest": "^29.7.0",
+    "prettier": "^3.3.3",
     "typescript": "^5.4.5"
   },
   "dependencies": {
