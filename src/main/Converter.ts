@@ -6,7 +6,14 @@ import { TileSet } from './models/TileSet';
 // this converter is used to converts map (2D array) from a generator
 // into file format from Tiled (https://www.mapeditor.org/)
 export class Converter {
-  // saves a generated map into an existing example.json from Tiled editor
+  /**
+   * saves a generated map into an existing example.json from Tiled editor
+   * @param map 2D array of map
+   * @param rows number of rows
+   * @param columns number of columns
+   * @param data existing example.json from Tiled editor
+   * @returns a string of the new map in Tiled editor format or null if given data is not a valid Tiled editor json
+   */
   public convertToTiled(map: number[], rows: number, columns: number, data: string): string | null {
     const mainMap = JSON.parse(data) as tiled.Map;
     if (mainMap) {
@@ -23,7 +30,21 @@ export class Converter {
     return null;
   }
 
-  // get a Tiled editor json string of generated map
+  /**
+   * get a Tiled editor json string of generated map
+   * @param map 2D array of map
+   * @param rows number of rows
+   * @param columns number of columns
+   * @param imagefile image file name
+   * @param tilewidth width of a tile
+   * @param tileheight height of a tile
+   * @param imagewidth width of the image
+   * @param imageheight height of the image
+   * @param tilecount number of tiles
+   * @param tilecolumns number of columns of tiles
+   * @param transparentcolor transparent color of the image
+   * @returns a string of the new map in Tiled editor format
+   */
   public generateTiledJson(
     map: number[],
     rows: number,

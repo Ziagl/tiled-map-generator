@@ -24,7 +24,11 @@ export class Generator {
     this._map = [];
   }
 
-  // generate a map of given type and size
+  /**
+   * generate a map of given type and size
+   * @param type type of map
+   * @param size size of map
+   */
   public generateMap(type: MapType, size: MapSize) {
     let generator: IMapGenerator;
 
@@ -65,12 +69,18 @@ export class Generator {
     this._map_y = generator.columns;
   }
 
-  // export generated map
+  /**
+   * export generated map
+   * @returns a tuple of map data, x dimension, and y dimension
+   */
   public exportMap(): [number[], number, number] {
     return [this._map.flat(), this._map_x, this._map_y];
   }
 
-  // print generated map structured (one row as one line)
+  /**
+   * print generated map structured (one row as one line)
+   * @returns a string of the map
+   */
   public print(): string {
     let response: string = '';
     for (let i = 0; i < this._map_x; ++i) {
@@ -84,7 +94,10 @@ export class Generator {
     return response;
   }
 
-  // print generated map unstructured
+  /**
+   * print generated map unstructured
+   * @returns a string of the map
+   */
   public print_unstructured(): string {
     return this._map.flat().join(' ');
   }
