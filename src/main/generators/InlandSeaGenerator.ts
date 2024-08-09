@@ -1,12 +1,13 @@
 import { Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../enums/MapSize';
 import { MapType } from '../enums/MapType';
-import { IMapGenerator } from '../interfaces/IMapGenerator';
+import { IMapTerrainGenerator } from '../interfaces/IMapTerrainGenerator';
 import { Utils } from './Utils';
 import { Tile } from './Tile';
-import { TileType } from '../enums/TileType';
+import { TerrainType } from '../enums/TerrainType';
+import { MapLayer } from '../enums/MapLayer';
 
-export class InlandSeaGenerator implements IMapGenerator {
+export class InlandSeaGenerator implements IMapTerrainGenerator {
   public readonly type: MapType = MapType.ARCHIPELAGO;
   public rows: number = 0;
   public columns: number = 0;
@@ -16,9 +17,6 @@ export class InlandSeaGenerator implements IMapGenerator {
   private readonly factorWater = 0.3;
   private readonly factorMountain = 0.1;
   private readonly factorHills = 0.1;
-  private readonly factorDesert = 0.1;
-  private readonly factorSwamp = 0.1;
-  private readonly factorWood = 0.2;
 
   public generate(size: MapSize): number[][] {
     this.size = size;
@@ -31,7 +29,7 @@ export class InlandSeaGenerator implements IMapGenerator {
 
     // 1. create a map with grassland
     grid.forEach((tile) => {
-      tile.type = TileType.PLAIN;
+      tile.terrain = TerrainType.PLAIN;
     });
 
     // 2. create a lake in the middle of map
@@ -54,7 +52,7 @@ export class InlandSeaGenerator implements IMapGenerator {
             tile.col >= col_border &&
             tile.col < this.columns - col_border
           ) {
-            tile.type = TileType.SHALLOW_WATER;
+            tile.terrain = TerrainType.SHALLOW_WATER;
             --waterTiles;
             lakeTiles.push(tile);
             break;
@@ -70,8 +68,8 @@ export class InlandSeaGenerator implements IMapGenerator {
       this.rows,
       this.columns,
       lakeTiles,
-      TileType.SHALLOW_WATER,
-      TileType.PLAIN,
+      TerrainType.SHALLOW_WATER,
+      TerrainType.PLAIN,
       randomSeeds,
       waterTiles,
     );
@@ -94,8 +92,8 @@ export class InlandSeaGenerator implements IMapGenerator {
       this.rows,
       this.columns,
       mountainRangesTiles,
-      TileType.HILLS,
-      TileType.PLAIN,
+      TerrainType.PLAIN_HILLS,
+      TerrainType.PLAIN,
       hillCounter,
       hillTiles,
     );
@@ -106,21 +104,6 @@ export class InlandSeaGenerator implements IMapGenerator {
     // 7. create mountain tiles
     Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles);
 
-    // 8. create random deserts
-    let desertTiles = grid.size * this.factorDesert;
-    Utils.addRandomTile(grid, this.rows, this.columns, TileType.DESERT, desertTiles);
-
-    // 9. add forst and jungle
-    let woodTiles = grid.size * this.factorWood;
-    Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
-
-    // 10. add swamp
-    let swampTiles = grid.size * this.factorSwamp;
-    Utils.addRandomTile(grid, this.rows, this.columns, TileType.SWAMP, swampTiles);
-
-    // 11. snow
-    Utils.createSnowTiles(grid, this.rows);
-
-    return Utils.hexagonToArray(grid, this.rows, this.columns);
+    return Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
   }
 }

@@ -1,7 +1,11 @@
 import { Direction, Grid } from 'honeycomb-grid';
 import { MapSize } from '../enums/MapSize';
 import { Tile } from './Tile';
-import { TileType } from '../enums/TileType';
+import { TerrainType } from '../enums/TerrainType';
+import { LandscapeType } from '../enums/LandscapeType';
+import { MapLayer } from '../enums/MapLayer';
+import { MapTemperature } from '../enums/MapTemperature';
+import { TileDistribution } from '../models/TileDistribution';
 
 export class Utils {
   public static readonly MAXLOOPS = 10000;
@@ -66,6 +70,15 @@ export class Utils {
     return grid.getHex({ col: column, row: row });
   }
 
+  // returns a random tile of given grid and row
+  public static randomTileOfRow(grid: Grid<Tile>, rows: number, columns: number, row: number): Tile | undefined {
+    if( row < 0 || row >= rows) {
+      row = 0;
+    }
+    const column = this.randomNumber(0, columns - 1);
+    return grid.getHex({ col: column, row: row });
+  }
+
   // returns all up to 6 neighbors of given grid and coordinate
   public static neighbors(grid: Grid<Tile>, coordinates: [q: number, r: number]): Tile[] {
     let neighbors: Tile[] = [];
@@ -117,15 +130,15 @@ export class Utils {
   // turns all shallow water tiles into deep water tiles if they are fully surrounded by water
   public static shallowToDeepWater(grid: Grid<Tile>) {
     grid.forEach((tile) => {
-      if (tile.type === TileType.SHALLOW_WATER) {
+      if (tile.terrain === TerrainType.SHALLOW_WATER) {
         const neighbors = Utils.neighbors(grid, [tile.q, tile.r]);
         // if all neighbors are water tiles -> tile is deep water
         if (
           neighbors.every(
-            (neighbor) => neighbor.type === TileType.DEEP_WATER || neighbor.type === TileType.SHALLOW_WATER,
+            (neighbor) => neighbor.terrain === TerrainType.DEEP_WATER || neighbor.terrain === TerrainType.SHALLOW_WATER,
           )
         ) {
-          tile.type = TileType.DEEP_WATER;
+          tile.terrain = TerrainType.DEEP_WATER;
         }
       }
     });
@@ -139,8 +152,8 @@ export class Utils {
       lakeTiles.forEach((tile) => {
         const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
         neighbors.forEach((neighbor) => {
-          if (neighbor.type != TileType.SHALLOW_WATER && neighbor.type != TileType.DEEP_WATER && waterTiles > 0) {
-            neighbor.type = TileType.SHALLOW_WATER;
+          if (neighbor.terrain != TerrainType.SHALLOW_WATER && neighbor.terrain != TerrainType.DEEP_WATER && waterTiles > 0) {
+            neighbor.terrain = TerrainType.SHALLOW_WATER;
             --waterTiles;
             lakeTiles.push(neighbor);
           }
@@ -158,8 +171,8 @@ export class Utils {
       plainTiles.forEach((tile) => {
         const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
         neighbors.forEach((neighbor) => {
-          if (neighbor.type != TileType.PLAIN && landTiles > 0) {
-            neighbor.type = TileType.PLAIN;
+          if (neighbor.terrain != TerrainType.PLAIN && landTiles > 0) {
+            neighbor.terrain = TerrainType.PLAIN;
             --landTiles;
             plainTiles.push(neighbor);
           }
@@ -178,12 +191,12 @@ export class Utils {
         const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
         neighbors.forEach((neighbor) => {
           if (
-            neighbor.type != TileType.SHALLOW_WATER &&
-            neighbor.type != TileType.DEEP_WATER &&
-            neighbor.type != TileType.HILLS &&
+            neighbor.terrain != TerrainType.SHALLOW_WATER &&
+            neighbor.terrain != TerrainType.DEEP_WATER &&
+            neighbor.terrain != TerrainType.PLAIN_HILLS &&
             hillTiles > 0
           ) {
-            neighbor.type = TileType.HILLS;
+            neighbor.terrain = TerrainType.PLAIN_HILLS;
             --hillTiles;
             mountainRangesTiles.push(neighbor);
           }
@@ -198,39 +211,39 @@ export class Utils {
     let loopMax = Utils.MAXLOOPS;
     do {
       let tile = Utils.randomTile(grid, rows, columns);
-      if (tile != undefined && tile.type === TileType.HILLS) {
+      if (tile != undefined && tile.terrain === TerrainType.PLAIN_HILLS) {
         const neighbors = Utils.neighbors(grid, [tile.q, tile.r]);
         // if all neighbors are hill tiles or water -> tile is mountain tile
         if (
           neighbors.every(
             (neighbor) =>
-              neighbor.type === TileType.MOUNTAIN ||
-              neighbor.type === TileType.HILLS ||
-              neighbor.type === TileType.SHALLOW_WATER ||
-              neighbor.type === TileType.DEEP_WATER,
+              neighbor.terrain === TerrainType.MOUNTAIN ||
+              neighbor.terrain === TerrainType.PLAIN_HILLS ||
+              neighbor.terrain === TerrainType.SHALLOW_WATER ||
+              neighbor.terrain === TerrainType.DEEP_WATER,
           ) &&
           !neighbors.every(
-            (neighbor) => neighbor.type === TileType.SHALLOW_WATER || neighbor.type === TileType.DEEP_WATER,
+            (neighbor) => neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER,
           )
         ) {
-          tile.type = TileType.MOUNTAIN;
+          tile.terrain = TerrainType.MOUNTAIN;
           --mountainTiles;
         } else {
           // if there is maximum one other additional tile
           let countOthers = 0;
           neighbors.forEach((neighbor) => {
             if (
-              neighbor.type != TileType.MOUNTAIN &&
-              neighbor.type != TileType.HILLS &&
-              neighbor.type != TileType.SHALLOW_WATER &&
-              neighbor.type != TileType.DEEP_WATER
+              neighbor.terrain != TerrainType.MOUNTAIN &&
+              neighbor.terrain != TerrainType.PLAIN_HILLS &&
+              neighbor.terrain != TerrainType.SHALLOW_WATER &&
+              neighbor.terrain != TerrainType.DEEP_WATER
             ) {
               ++countOthers;
             }
           });
 
           if (countOthers <= 1) {
-            tile.type = TileType.MOUNTAIN;
+            tile.terrain = TerrainType.MOUNTAIN;
             --mountainTiles;
           }
         }
@@ -239,14 +252,25 @@ export class Utils {
     } while (mountainTiles > 0 && loopMax > 0);
   }
 
+  // counts given list of tile types in grid
+  public static countTiles(grid: Grid<Tile>, types: TerrainType[]): number {
+    let count = 0;
+    grid.forEach((tile) => {
+      if (types.includes(tile.terrain)) {
+        ++count;
+      }
+    });
+    return count;
+  }
+
   // add random tiles of given type
   public static addRandomTileSeed(
     grid: Grid<Tile>,
     rows: number,
     columns: number,
-    lakeTiles: Tile[],
-    type: TileType,
-    oldType: TileType,
+    tiles: Tile[],
+    type: TerrainType,
+    oldType: TerrainType,
     count: number,
     maxCount: number,
   ) {
@@ -256,11 +280,11 @@ export class Utils {
       do {
         tile = Utils.randomTile(grid, rows, columns);
         --loopMax;
-      } while (loopMax > 0 && (tile === undefined || tile.type != oldType));
+      } while (loopMax > 0 && (tile === undefined || tile.terrain != oldType));
       if (tile != undefined) {
-        tile.type = type;
+        tile.terrain = type;
         --maxCount;
-        lakeTiles.push(tile);
+        tiles.push(tile);
       }
     }
   }
@@ -270,7 +294,7 @@ export class Utils {
     grid: Grid<Tile>,
     rows: number,
     columns: number,
-    oldType: TileType,
+    oldType: TerrainType,
     count: number,
   ) {
     for (let i = 0; i < count; ++i) {
@@ -279,21 +303,77 @@ export class Utils {
       do {
         tile = Utils.randomTile(grid, rows, columns);
         --loopMax;
-      } while (loopMax > 0 && (tile === undefined || tile.type != oldType));
+      } while (loopMax > 0 && (tile === undefined || tile.terrain != oldType));
       if (tile != undefined) {
-        tile.type = Utils.MAXCONTINENTSEED - i;
+        tile.terrain = Utils.MAXCONTINENTSEED - i;
       }
     }
   }
 
-  // converts given number of plain tiles to given tile type
-  public static addRandomTile(grid: Grid<Tile>, rows: number, columns: number, type: TileType, count: number) {
+  // adds given landscape type to given terrain tiles
+  public static addRandomLandscape(grid: Grid<Tile>, rows: number, columns: number, type: LandscapeType, terrains: TerrainType[], count: number, distribution: TileDistribution) {
     let loopMax = Utils.MAXLOOPS;
+    const rowsPerZone = Utils.climateZonesSeparation(rows);
+    const tilesPerZone: number[] = [];
+    tilesPerZone.push(Math.floor(distribution.polar * count));
+    tilesPerZone.push(Math.floor(distribution.temperate * count));
+    tilesPerZone.push(Math.floor(distribution.dry * count));
+    tilesPerZone.push(Math.floor(distribution.tropical * count));
+    let currentZone = 0;
     do {
-      let tile = Utils.randomTile(grid, rows, columns);
-      if (tile != undefined && tile.type === TileType.PLAIN) {
-        tile.type = type;
-        --count;
+      // place tile for current zone
+      if(tilesPerZone[currentZone]! > 0) {
+        const randomRowIndex = Utils.randomNumber(0, rowsPerZone[currentZone]!.length - 1);
+        let tile = Utils.randomTileOfRow(grid, rows, columns, randomRowIndex);
+        if (tile != undefined && terrains.includes(tile.terrain)) {
+          tile.landscape = type;
+          --count;
+          --tilesPerZone[currentZone]!;
+        } else {
+          if(currentZone < tilesPerZone.length - 1) {
+            ++currentZone;
+          } else {
+            // place random landscape instead? TODO
+            count = 0;
+          }
+        }
+      }
+      --loopMax;
+    } while (count > 0 && loopMax > 0);
+  }
+
+  // converts given number of plain terrain tiles to given tile type
+  public static addRandomTerrain(grid: Grid<Tile>, rows: number, columns: number, type_flat: TerrainType, type_hill: TerrainType, count: number, distribution: TileDistribution) {
+    let loopMax = Utils.MAXLOOPS;
+    const rowsPerZone = Utils.climateZonesSeparation(rows);
+    const tilesPerZone: number[] = [];
+    tilesPerZone.push(Math.floor(distribution.polar * count));
+    tilesPerZone.push(Math.floor(distribution.temperate * count));
+    tilesPerZone.push(Math.floor(distribution.dry * count));
+    tilesPerZone.push(Math.floor(distribution.tropical * count));
+    let currentZone = 0;
+    do {
+      // place tile for current zone
+      if(tilesPerZone[currentZone]! > 0) {
+        const randomRowIndex = Utils.randomNumber(0, rowsPerZone[currentZone]!.length - 1);
+        let tile = Utils.randomTileOfRow(grid, rows, columns, rowsPerZone[currentZone]![randomRowIndex]!);
+        if (tile != undefined && (tile.terrain === TerrainType.PLAIN)) {
+          tile.terrain = type_flat;
+          --count;
+          --tilesPerZone[currentZone]!;
+        }
+        else if(tile != undefined && (tile.terrain === TerrainType.PLAIN_HILLS)) {
+          tile.terrain = type_hill;
+          --count;
+          --tilesPerZone[currentZone]!;
+        }
+      } else {
+        if(currentZone < tilesPerZone.length - 1) {
+          ++currentZone;
+        } else {
+          // place random tile instead? TODO
+          count = 0;
+        }
       }
       --loopMax;
     } while (count > 0 && loopMax > 0);
@@ -303,7 +383,7 @@ export class Utils {
     let loopMax = Utils.MAXLOOPS;
     do {
       let tile = Utils.randomTile(grid, rows, columns);
-      if (tile != undefined && tile.type === TileType.PLAIN) {
+      if (tile != undefined && (tile.terrain === TerrainType.PLAIN || TerrainType.GRASS || TerrainType.TUNDRA)) {
         // depending on climate region chance is different for forest and jungle
         const third = rows / 3;
         let chanceForest = 5; // 50:50 if random number 0-9
@@ -311,9 +391,9 @@ export class Utils {
           chanceForest = 8;
         }
         if (Utils.randomNumber(0, 9) < chanceForest) {
-          tile.type = TileType.FOREST;
+          tile.landscape = LandscapeType.FOREST;
         } else {
-          tile.type = TileType.JUNGLE;
+          tile.landscape = LandscapeType.JUNGLE;
         }
         --count;
       }
@@ -321,35 +401,102 @@ export class Utils {
     } while (count > 0 && loopMax > 0);
   }
 
+  // returns an array of map rows for each climate zone
+  public static climateZonesSeparation(rows: number): number[][] {
+    let climateZoneRows: number[][] = [];
+    let lastRows = 0;
+    for (let zoneSize of TileDistribution.climateZoneSizes) {
+      // create new array of lines for climate zone
+      let rowNumbers: number[] = [];
+      // rows per hemisphere
+      const neededRows = Math.round((zoneSize * rows) / 2);
+      for(let i = 0; i < neededRows; ++i) {
+        rowNumbers.push(lastRows + i);
+        rowNumbers.push(rows - (lastRows + i + 1));
+      }
+      climateZoneRows.push(rowNumbers);
+      lastRows += rowNumbers.length / 2;
+    }
+    return climateZoneRows;
+  }
+
   // create snow tiles in polar region
-  public static createSnowTiles(grid: Grid<Tile>, rows: number) {
+  public static createSnowTiles(grid: Grid<Tile>, rows: number, temperature: MapTemperature) {
     grid.forEach((tile) => {
-      let chanceForSnow = 0;
+      let chance = 0;
       if (tile.r === 0 || tile.r === rows - 1) {
-        chanceForSnow = 10;
+        chance = 10;
       }
-      if (tile.r === 1 || tile.r === rows - 2) {
-        chanceForSnow = 7;
+      if(temperature < MapTemperature.HOT) {
+        if (tile.r === 1 || tile.r === rows - 2) {
+          if(temperature < MapTemperature.NORMAL) {
+            chance = 6;
+          } else {
+            chance = 4;
+          }
+        }
       }
-      if (tile.r === 2 || tile.r === rows - 3) {
-        chanceForSnow = 4;
+      if(temperature < MapTemperature.NORMAL) {
+        if (tile.r === 2 || tile.r === rows - 3) {
+          chance = 4;
+        }
       }
 
-      if (chanceForSnow > 0) {
-        if (Utils.randomNumber(0, 9) < chanceForSnow) {
-          switch (tile.type) {
-            case TileType.DEEP_WATER:
-            case TileType.SHALLOW_WATER:
-              tile.type = TileType.SNOW_WATER;
+      if (chance > 0) {
+        if (Utils.randomNumber(0, 9) < chance) {
+          switch (tile.terrain) {
+            case TerrainType.SHALLOW_WATER:
+            case TerrainType.DEEP_WATER:
+              tile.landscape = LandscapeType.ICE;
               break;
-            case TileType.HILLS:
-              tile.type = TileType.SNOW_HILLS;
+            case TerrainType.PLAIN_HILLS:
+              tile.terrain = TerrainType.SNOW_HILLS;
               break;
-            case TileType.MOUNTAIN:
-              tile.type = TileType.SNOW_MOUNTAIN;
+            case TerrainType.PLAIN:
+              tile.terrain = TerrainType.SNOW;
+          }
+        }
+      }
+    });
+  }
+
+  // create tundra tiles in polar region
+  public static createTundraTiles(grid: Grid<Tile>, rows: number, temperature: MapTemperature) {
+    grid.forEach((tile) => {
+      let chance = 0;
+      if (tile.r === 1 || tile.r === rows - 2) {
+        chance = 10;
+      }
+      if (tile.r === 2 || tile.r === rows - 3) {
+        switch(temperature) {
+          case MapTemperature.HOT:
+            chance = 3;
+            break;
+          case MapTemperature.NORMAL:
+            chance = 8;
+            break
+          case MapTemperature.COLD:
+            chance = 9;
+            break;
+        }
+      }
+      if(temperature < MapTemperature.NORMAL) {
+        if (tile.r === 3 || tile.r === rows - 4) {
+          chance = 6;
+        }
+        if (tile.r === 4 || tile.r === rows - 5) {
+          chance = 3;
+        }
+      }
+
+      if (chance > 0) {
+        if (Utils.randomNumber(0, 9) < chance) {
+          switch (tile.terrain) {
+            case TerrainType.PLAIN_HILLS:
+              tile.terrain = TerrainType.TUNDRA_HILLS;
               break;
-            default:
-              tile.type = TileType.SNOW_PLAIN;
+            case TerrainType.PLAIN:
+              tile.terrain = TerrainType.TUNDRA;
           }
         }
       }
@@ -365,15 +512,24 @@ export class Utils {
   }
 
   // converts a grid into a 2d number array
-  public static hexagonToArray(grid: Grid<Tile>, rows: number, columns: number): number[][] {
+  public static hexagonToArray(grid: Grid<Tile>, rows: number, columns: number, layer: MapLayer): number[][] {
     // create empty map
     let map = new Array(rows).fill([]).map(() => new Array(columns));
 
     // convert hexagon grid to 2d map
     for (let i = 0; i < rows; ++i) {
       for (let j = 0; j < columns; ++j) {
-        // @ts-ignore
-        map[i][j] = grid.getHex({ col: j, row: i }).type;
+        switch(layer) {
+          case MapLayer.TERRAIN:
+            map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).terrain;
+            break;
+          case MapLayer.LANDSCAPE:
+            map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).landscape;
+            break;
+          default:
+            map[i]![j] = -1;
+            break;
+        }
       }
     }
 

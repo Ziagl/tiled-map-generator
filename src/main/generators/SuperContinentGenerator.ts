@@ -1,12 +1,13 @@
 import { Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../enums/MapSize';
 import { MapType } from '../enums/MapType';
-import { IMapGenerator } from '../interfaces/IMapGenerator';
+import { IMapTerrainGenerator } from '../interfaces/IMapTerrainGenerator';
 import { Utils } from './Utils';
 import { Tile } from './Tile';
-import { TileType } from '../enums/TileType';
+import { TerrainType } from '../enums/TerrainType';
+import { MapLayer } from '../enums/MapLayer';
 
-export class SuperContinentGenerator implements IMapGenerator {
+export class SuperContinentGenerator implements IMapTerrainGenerator {
   public readonly type: MapType = MapType.ARCHIPELAGO;
   public rows: number = 0;
   public columns: number = 0;
@@ -16,9 +17,9 @@ export class SuperContinentGenerator implements IMapGenerator {
   private readonly factorLand = 0.7;
   private readonly factorMountain = 0.05;
   private readonly factorHills = 0.08;
-  private readonly factorDesert = 0.1;
-  private readonly factorSwamp = 0.05;
-  private readonly factorWood = 0.15;
+  //private readonly factorDesert = 0.1;
+  //private readonly factorSwamp = 0.05;
+  //private readonly factorWood = 0.15;
 
   public generate(size: MapSize): number[][] {
     this.size = size;
@@ -29,9 +30,9 @@ export class SuperContinentGenerator implements IMapGenerator {
     // create empty grid
     const grid = new Grid(Tile, rectangle({ width: columns, height: rows }));
 
-    // 1. create a map with grassland
+    // 1. create a default water map
     grid.forEach((tile) => {
-      tile.type = TileType.SHALLOW_WATER;
+      tile.terrain = TerrainType.SHALLOW_WATER;
     });
 
     // 2. create super continent landmass
@@ -54,7 +55,7 @@ export class SuperContinentGenerator implements IMapGenerator {
             tile.col >= col_border &&
             tile.col < this.columns - col_border
           ) {
-            tile.type = TileType.PLAIN;
+            tile.terrain = TerrainType.PLAIN;
             --landTiles;
             plainTiles.push(tile);
             break;
@@ -70,8 +71,8 @@ export class SuperContinentGenerator implements IMapGenerator {
       this.rows,
       this.columns,
       plainTiles,
-      TileType.PLAIN,
-      TileType.SHALLOW_WATER,
+      TerrainType.PLAIN,
+      TerrainType.SHALLOW_WATER,
       randomSeeds,
       landTiles,
     );
@@ -88,8 +89,8 @@ export class SuperContinentGenerator implements IMapGenerator {
       this.rows,
       this.columns,
       lakeTiles,
-      TileType.SHALLOW_WATER,
-      TileType.PLAIN,
+      TerrainType.SHALLOW_WATER,
+      TerrainType.PLAIN,
       lakeSeeds,
       waterTiles,
     );
@@ -112,8 +113,8 @@ export class SuperContinentGenerator implements IMapGenerator {
       this.rows,
       this.columns,
       mountainRangesTiles,
-      TileType.HILLS,
-      TileType.PLAIN,
+      TerrainType.PLAIN_HILLS,
+      TerrainType.PLAIN,
       hillCounter,
       hillTiles,
     );
@@ -125,20 +126,20 @@ export class SuperContinentGenerator implements IMapGenerator {
     Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles);
 
     // 9. create random deserts
-    let desertTiles = grid.size * this.factorDesert;
-    Utils.addRandomTile(grid, this.rows, this.columns, TileType.DESERT, desertTiles);
+    //let desertTiles = grid.size * this.factorDesert;
+    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.DESERT, desertTiles);
 
     // 10. add forst and jungle
-    let woodTiles = grid.size * this.factorWood;
-    Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
+    //let woodTiles = grid.size * this.factorWood;
+    //Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
 
     // 11. add swamp
-    let swampTiles = grid.size * this.factorSwamp;
-    Utils.addRandomTile(grid, this.rows, this.columns, TileType.SWAMP, swampTiles);
+    //let swampTiles = grid.size * this.factorSwamp;
+    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.SWAMP, swampTiles);
 
     // 12. snow
-    Utils.createSnowTiles(grid, this.rows);
+    //Utils.createSnowTiles(grid, this.rows);
 
-    return Utils.hexagonToArray(grid, this.rows, this.columns);
+    return Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
   }
 }

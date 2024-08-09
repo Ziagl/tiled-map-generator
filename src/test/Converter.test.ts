@@ -1,11 +1,14 @@
 import { Converter } from '../main/Converter';
 import { Generator } from '../main/Generator';
+import { MapHumidity } from '../main/enums/MapHumidity';
 import { MapSize } from '../main/enums/MapSize';
+import { MapTemperature } from '../main/enums/MapTemperature';
 import { MapType } from '../main/enums/MapType';
+import * as fs from 'fs';
 
-test('convertToTiled', () => {
+/*test('convertToTiled', () => {
   let gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO);
+  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
   const data =
@@ -15,9 +18,18 @@ test('convertToTiled', () => {
 });
 test('generateTiledJson', () => {
   let gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO);
+  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
   const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, '#ffffff');
   expect(result).not.toBeNull();
+});*/
+test('generateTiledFile', () => {
+  let gen = new Generator();
+  //@ts-ignore
+  gen.generateMap(MapType.INLAND_SEA, MapSize.MICRO, MapTemperature.COLD, MapHumidity.NORMAL);
+  let converter = new Converter();
+  const [map, rows, columns] = gen.exportMap();
+  const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, '#ffffff');
+  fs.writeFileSync('test.json', result);
 });

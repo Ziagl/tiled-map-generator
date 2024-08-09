@@ -1,5 +1,5 @@
 // stores distribution of tiles for earth like planets
-// each hemisphere contains roughly of 4 different klimate zones
+// each hemisphere contains roughly of 4 different climate zones
 // polar, temperate, dry, tropical
 // they are mirrored on the other hemisphere (caused by earth axis)
 export class TileDistribution {
@@ -7,6 +7,9 @@ export class TileDistribution {
     public readonly temperate: number = 0;
     public readonly dry: number = 0;
     public readonly tropical: number = 0;
+
+    // approx. size of each climate zone (based on read earth data)
+    public static readonly climateZoneSizes: number[] = [0.18, 0.38, 0.14, 0.3];
 
     constructor(polar: number, temperate: number, dry: number, tropical: number) {
         const max = polar + temperate + dry + tropical;

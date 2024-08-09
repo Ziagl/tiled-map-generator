@@ -1,5 +1,6 @@
 import { Orientation, defineHex } from 'honeycomb-grid';
-import { TileType } from '../enums/TileType';
+import { TerrainType } from '../enums/TerrainType';
+import { LandscapeType } from '../enums/LandscapeType';
 
 export class Tile extends defineHex({
   dimensions: 1,
@@ -7,5 +8,6 @@ export class Tile extends defineHex({
   origin: 'topLeft',
   offset: -1,
 }) {
-  type: TileType = TileType.SHALLOW_WATER;
+  terrain: TerrainType = TerrainType.SHALLOW_WATER;
+  landscape: LandscapeType = LandscapeType.NONE;
 }

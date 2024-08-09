@@ -1,12 +1,13 @@
+import { MapLayer } from '../enums/MapLayer';
 import { MapSize } from '../enums/MapSize';
 import { MapType } from '../enums/MapType';
-import { TileType } from '../enums/TileType';
-import { IMapGenerator } from '../interfaces/IMapGenerator';
+import { TerrainType } from '../enums/TerrainType';
+import { IMapTerrainGenerator } from '../interfaces/IMapTerrainGenerator';
 import { Tile } from './Tile';
 import { Utils } from './Utils';
 import { Grid, rectangle } from 'honeycomb-grid';
 
-export class RandomGenerator implements IMapGenerator {
+export class RandomGenerator implements IMapTerrainGenerator {
   public readonly type: MapType = MapType.HIGHLAND;
   public rows: number = 0;
   public columns: number = 0;
@@ -14,7 +15,7 @@ export class RandomGenerator implements IMapGenerator {
 
   public generate(size: MapSize): number[][] {
     this.size = size;
-    var [min, max] = Utils.getMinMaxOfEnum(TileType);
+    var [min, max] = Utils.getMinMaxOfEnum(TerrainType);
     const [rows, columns] = Utils.convertMapSize(this.size);
     this.rows = rows;
     this.columns = columns;
@@ -24,20 +25,9 @@ export class RandomGenerator implements IMapGenerator {
 
     // compute grid
     grid.forEach((tile) => {
-      tile.type = Utils.randomNumber(min, max);
+      tile.terrain = Utils.randomNumber(min, max);
     });
 
-    // create empty map
-    let map = new Array(rows).fill([]).map(() => new Array(columns));
-
-    // convert hexagon grid to 2d map
-    for (let i = 0; i < rows; ++i) {
-      for (let j = 0; j < columns; ++j) {
-        // @ts-ignore
-        map[i][j] = grid.getHex({ col: j, row: i }).type;
-      }
-    }
-
-    return map;
+    return Utils.hexagonToArray(grid, rows, columns, MapLayer.TERRAIN);
   }
 }

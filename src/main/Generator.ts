@@ -1,4 +1,7 @@
+import { MapHumidity } from './enums/MapHumidity';
+import { MapLayer } from './enums/MapLayer';
 import { MapSize } from './enums/MapSize';
+import { MapTemperature } from './enums/MapTemperature';
 import { MapType } from './enums/MapType';
 import { ArchipelagoGenerator } from './generators/ArchipelagoGenerator';
 import { ContinentsGenerator } from './generators/ContinentsGenerator';
@@ -10,13 +13,17 @@ import { LakesGenerator } from './generators/LakesGenerator';
 import { RandomGenerator } from './generators/RandomGenerator';
 import { SmallContinentsGenerator } from './generators/SmallContinentsGenerator';
 import { SuperContinentGenerator } from './generators/SuperContinentGenerator';
-import { IMapGenerator } from './interfaces/IMapGenerator';
+import { Utils } from './generators/Utils';
+import { IMapLandscapeShaper } from './interfaces/IMapLandscapeShaper';
+import { IMapTerrainGenerator } from './interfaces/IMapTerrainGenerator';
+import { DefaultShaper } from './shapers/DefaultShaper';
 
 // this generator class loads a specific generator (of MapType type)
 // and generates a map with specific ruleset and exports its data
 // print methods are useful for debug purposes
 export class Generator {
-  private _map: number[][] = []; // base data of map
+  private readonly _layers: string[] = ['terrain', 'landscape']; // layers of map
+  private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
 
@@ -29,8 +36,9 @@ export class Generator {
    * @param type type of map
    * @param size size of map
    */
-  public generateMap(type: MapType, size: MapSize) {
-    let generator: IMapGenerator;
+  public generateMap(type: MapType, size: MapSize, temperature: MapTemperature, humidity: MapHumidity) {
+    let generator: IMapTerrainGenerator;
+    let shaper: IMapLandscapeShaper;
 
     switch (type) {
       case MapType.ARCHIPELAGO:
@@ -64,7 +72,10 @@ export class Generator {
         generator = new RandomGenerator();
     }
 
-    this._map = generator.generate(size);
+    const [rows, columns] = Utils.convertMapSize(size);
+    shaper = new DefaultShaper(temperature, humidity, rows, columns);
+
+    this._map = shaper.generate(generator.generate(size));
     this._map_x = generator.rows;
     this._map_y = generator.columns;
   }
@@ -74,7 +85,18 @@ export class Generator {
    * @returns a tuple of map data, x dimension, and y dimension
    */
   public exportMap(): [number[], number, number] {
-    return [this._map.flat(), this._map_x, this._map_y];
+    const terrainMap = this.exportTerrainMap();
+    //const landscapeMap = this.exportLandscapeMap();
+    // TODO -> merge terrain and landscape maps
+    return terrainMap;
+  }
+
+  public exportTerrainMap(): [number[], number, number] {
+    return [this._map[MapLayer.TERRAIN]!.flat(), this._map_x, this._map_y];
+  }
+
+  public exportLandscapeMap(): [number[], number, number] {
+    return [this._map[MapLayer.LANDSCAPE]!.flat(), this._map_x, this._map_y];
   }
 
   /**
@@ -83,12 +105,18 @@ export class Generator {
    */
   public print(): string {
     let response: string = '';
-    for (let i = 0; i < this._map_x; ++i) {
-      const row = this._map[i];
-      // @ts-ignore
-      response += row.join(' ');
-      if (i < this._map_x - 1) {
-        response += '\n';
+    for (let type = 0; type < this._map.length; ++type) {
+      const layer = this._map[type];
+      response += this._layers[type] + '\n';
+      if(layer !== undefined) {
+        for (let i = 0; i < this._map_x; ++i) {
+          const row = layer[i];
+          // @ts-ignore
+          response += row.join(' ');
+          if (i < this._map_x - 1) {
+            response += '\n';
+          }
+        }
       }
     }
     return response;
