@@ -14,20 +14,20 @@ export class Converter {
    * @param data existing example.json from Tiled editor
    * @returns a string of the new map in Tiled editor format or null if given data is not a valid Tiled editor json
    */
-  public convertToTiled(map: number[], rows: number, columns: number, data: string): string | null {
+  public convertToTiled(map: number[][], rows: number, columns: number, data: string): string {
     const mainMap = JSON.parse(data) as tiled.Map;
-    if (mainMap) {
-      mainMap.width = columns;
-      mainMap.height = rows;
-      let layer = mainMap.layers[0] as tiled.TileLayer;
+
+    mainMap.width = columns;
+    mainMap.height = rows;
+    for (let i = 0; i < map.length; i++) {
+      let layer = mainMap.layers[i] as tiled.TileLayer;
       layer.width = columns;
       layer.height = rows;
-      layer.data = map;
-
-      return JSON.stringify(mainMap);
+      layer.data = map[i]!;
+      layer.name = 'generated tile layer ' + i;
     }
 
-    return null;
+    return JSON.stringify(mainMap);
   }
 
   /**
@@ -46,7 +46,7 @@ export class Converter {
    * @returns a string of the new map in Tiled editor format
    */
   public generateTiledJson(
-    map: number[],
+    map: number[][],
     rows: number,
     columns: number,
     imagefile: string,
@@ -65,13 +65,16 @@ export class Converter {
     tileMap.tileheight = tileheight;
     tileMap.hexsidelength = tilewidth / 2;
 
-    let layer = new TileLayer();
-    layer.width = columns;
-    layer.height = rows;
-    layer.data = map;
-    layer.name = 'generated tile layer';
+    // add all layers
+    for (let i = 0; i < map.length; i++) {
+      let layer = new TileLayer();
+      layer.width = columns;
+      layer.height = rows;
+      layer.data = map[i]!;
+      layer.name = 'generated tile layer ' + i;
 
-    tileMap.layers.push(layer);
+      tileMap.layers.push(layer);
+    }
 
     let tileset = new TileSet();
     tileset.imageheight = imageheight;

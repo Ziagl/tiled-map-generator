@@ -17,27 +17,27 @@ export class Utils {
     let columns = 44;
 
     switch (size) {
-      case MapSize.MICRO:
+      case MapSize.MICRO: // 1144
         rows = 26;
         columns = 44;
         break;
-      case MapSize.TINY:
+      case MapSize.TINY: // 2280
         rows = 38;
         columns = 60;
         break;
-      case MapSize.SMALL:
+      case MapSize.SMALL: // 3404
         rows = 46;
         columns = 74;
         break;
-      case MapSize.MEDIUM:
+      case MapSize.MEDIUM: // 4536
         rows = 54;
         columns = 84;
         break;
-      case MapSize.LARGE:
+      case MapSize.LARGE: // 5760
         rows = 60;
         columns = 96;
         break;
-      case MapSize.HUGE:
+      case MapSize.HUGE: // 6996
         rows = 66;
         columns = 106;
         break;
@@ -59,7 +59,6 @@ export class Utils {
       .map((k) => (k === '' ? NaN : +k))
       .filter((k) => !isNaN(k))
       .sort((k1, k2) => k1 - k2);
-
     return [values[0] ?? 0, values[values.length - 1] ?? 0];
   }
 
@@ -72,7 +71,7 @@ export class Utils {
 
   // returns a random tile of given grid and row
   public static randomTileOfRow(grid: Grid<Tile>, rows: number, columns: number, row: number): Tile | undefined {
-    if( row < 0 || row >= rows) {
+    if (row < 0 || row >= rows) {
       row = 0;
     }
     const column = this.randomNumber(0, columns - 1);
@@ -152,7 +151,11 @@ export class Utils {
       lakeTiles.forEach((tile) => {
         const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
         neighbors.forEach((neighbor) => {
-          if (neighbor.terrain != TerrainType.SHALLOW_WATER && neighbor.terrain != TerrainType.DEEP_WATER && waterTiles > 0) {
+          if (
+            neighbor.terrain != TerrainType.SHALLOW_WATER &&
+            neighbor.terrain != TerrainType.DEEP_WATER &&
+            waterTiles > 0
+          ) {
             neighbor.terrain = TerrainType.SHALLOW_WATER;
             --waterTiles;
             lakeTiles.push(neighbor);
@@ -311,7 +314,15 @@ export class Utils {
   }
 
   // adds given landscape type to given terrain tiles
-  public static addRandomLandscape(grid: Grid<Tile>, rows: number, columns: number, type: LandscapeType, terrains: TerrainType[], count: number, distribution: TileDistribution) {
+  public static addRandomLandscape(
+    grid: Grid<Tile>,
+    rows: number,
+    columns: number,
+    type: LandscapeType,
+    terrains: TerrainType[],
+    count: number,
+    distribution: TileDistribution,
+  ) {
     let loopMax = Utils.MAXLOOPS;
     const rowsPerZone = Utils.climateZonesSeparation(rows);
     const tilesPerZone: number[] = [];
@@ -322,56 +333,19 @@ export class Utils {
     let currentZone = 0;
     do {
       // place tile for current zone
-      if(tilesPerZone[currentZone]! > 0) {
+      if (tilesPerZone[currentZone]! > 0) {
         const randomRowIndex = Utils.randomNumber(0, rowsPerZone[currentZone]!.length - 1);
-        let tile = Utils.randomTileOfRow(grid, rows, columns, randomRowIndex);
+        let tile = Utils.randomTileOfRow(grid, rows, columns, rowsPerZone[currentZone]![randomRowIndex]!);
         if (tile != undefined && terrains.includes(tile.terrain)) {
           tile.landscape = type;
           --count;
           --tilesPerZone[currentZone]!;
-        } else {
-          if(currentZone < tilesPerZone.length - 1) {
-            ++currentZone;
-          } else {
-            // place random landscape instead? TODO
-            count = 0;
-          }
-        }
-      }
-      --loopMax;
-    } while (count > 0 && loopMax > 0);
-  }
-
-  // converts given number of plain terrain tiles to given tile type
-  public static addRandomTerrain(grid: Grid<Tile>, rows: number, columns: number, type_flat: TerrainType, type_hill: TerrainType, count: number, distribution: TileDistribution) {
-    let loopMax = Utils.MAXLOOPS;
-    const rowsPerZone = Utils.climateZonesSeparation(rows);
-    const tilesPerZone: number[] = [];
-    tilesPerZone.push(Math.floor(distribution.polar * count));
-    tilesPerZone.push(Math.floor(distribution.temperate * count));
-    tilesPerZone.push(Math.floor(distribution.dry * count));
-    tilesPerZone.push(Math.floor(distribution.tropical * count));
-    let currentZone = 0;
-    do {
-      // place tile for current zone
-      if(tilesPerZone[currentZone]! > 0) {
-        const randomRowIndex = Utils.randomNumber(0, rowsPerZone[currentZone]!.length - 1);
-        let tile = Utils.randomTileOfRow(grid, rows, columns, rowsPerZone[currentZone]![randomRowIndex]!);
-        if (tile != undefined && (tile.terrain === TerrainType.PLAIN)) {
-          tile.terrain = type_flat;
-          --count;
-          --tilesPerZone[currentZone]!;
-        }
-        else if(tile != undefined && (tile.terrain === TerrainType.PLAIN_HILLS)) {
-          tile.terrain = type_hill;
-          --count;
-          --tilesPerZone[currentZone]!;
         }
       } else {
-        if(currentZone < tilesPerZone.length - 1) {
+        if (currentZone < tilesPerZone.length - 1) {
           ++currentZone;
         } else {
-          // place random tile instead? TODO
+          // place random landscape instead? TODO
           count = 0;
         }
       }
@@ -379,23 +353,45 @@ export class Utils {
     } while (count > 0 && loopMax > 0);
   }
 
-  public static addWoodTiles(grid: Grid<Tile>, rows: number, columns: number, count: number) {
+  // converts given number of plain terrain tiles to given tile type
+  public static addRandomTerrain(
+    grid: Grid<Tile>,
+    rows: number,
+    columns: number,
+    type_flat: TerrainType,
+    type_hill: TerrainType,
+    count: number,
+    distribution: TileDistribution,
+  ) {
     let loopMax = Utils.MAXLOOPS;
+    const rowsPerZone = Utils.climateZonesSeparation(rows);
+    const tilesPerZone: number[] = [];
+    tilesPerZone.push(Math.floor(distribution.polar * count));
+    tilesPerZone.push(Math.floor(distribution.temperate * count));
+    tilesPerZone.push(Math.floor(distribution.dry * count));
+    tilesPerZone.push(Math.floor(distribution.tropical * count));
+    let currentZone = 0;
     do {
-      let tile = Utils.randomTile(grid, rows, columns);
-      if (tile != undefined && (tile.terrain === TerrainType.PLAIN || TerrainType.GRASS || TerrainType.TUNDRA)) {
-        // depending on climate region chance is different for forest and jungle
-        const third = rows / 3;
-        let chanceForest = 5; // 50:50 if random number 0-9
-        if (tile.r < third || tile.r > third * 2) {
-          chanceForest = 8;
+      // place tile for current zone
+      if (tilesPerZone[currentZone]! > 0) {
+        const randomRowIndex = Utils.randomNumber(0, rowsPerZone[currentZone]!.length - 1);
+        let tile = Utils.randomTileOfRow(grid, rows, columns, rowsPerZone[currentZone]![randomRowIndex]!);
+        if (tile != undefined && tile.terrain === TerrainType.PLAIN) {
+          tile.terrain = type_flat;
+          --count;
+          --tilesPerZone[currentZone]!;
+        } else if (tile != undefined && tile.terrain === TerrainType.PLAIN_HILLS) {
+          tile.terrain = type_hill;
+          --count;
+          --tilesPerZone[currentZone]!;
         }
-        if (Utils.randomNumber(0, 9) < chanceForest) {
-          tile.landscape = LandscapeType.FOREST;
+      } else {
+        if (currentZone < tilesPerZone.length - 1) {
+          ++currentZone;
         } else {
-          tile.landscape = LandscapeType.JUNGLE;
+          // place random tile instead? TODO
+          count = 0;
         }
-        --count;
       }
       --loopMax;
     } while (count > 0 && loopMax > 0);
@@ -410,7 +406,7 @@ export class Utils {
       let rowNumbers: number[] = [];
       // rows per hemisphere
       const neededRows = Math.round((zoneSize * rows) / 2);
-      for(let i = 0; i < neededRows; ++i) {
+      for (let i = 0; i < neededRows; ++i) {
         rowNumbers.push(lastRows + i);
         rowNumbers.push(rows - (lastRows + i + 1));
       }
@@ -427,16 +423,16 @@ export class Utils {
       if (tile.r === 0 || tile.r === rows - 1) {
         chance = 10;
       }
-      if(temperature < MapTemperature.HOT) {
+      if (temperature < MapTemperature.HOT) {
         if (tile.r === 1 || tile.r === rows - 2) {
-          if(temperature < MapTemperature.NORMAL) {
+          if (temperature < MapTemperature.NORMAL) {
             chance = 6;
           } else {
             chance = 4;
           }
         }
       }
-      if(temperature < MapTemperature.NORMAL) {
+      if (temperature < MapTemperature.NORMAL) {
         if (tile.r === 2 || tile.r === rows - 3) {
           chance = 4;
         }
@@ -468,19 +464,19 @@ export class Utils {
         chance = 10;
       }
       if (tile.r === 2 || tile.r === rows - 3) {
-        switch(temperature) {
+        switch (temperature) {
           case MapTemperature.HOT:
             chance = 3;
             break;
           case MapTemperature.NORMAL:
             chance = 8;
-            break
+            break;
           case MapTemperature.COLD:
             chance = 9;
             break;
         }
       }
-      if(temperature < MapTemperature.NORMAL) {
+      if (temperature < MapTemperature.NORMAL) {
         if (tile.r === 3 || tile.r === rows - 4) {
           chance = 6;
         }
@@ -519,15 +515,12 @@ export class Utils {
     // convert hexagon grid to 2d map
     for (let i = 0; i < rows; ++i) {
       for (let j = 0; j < columns; ++j) {
-        switch(layer) {
+        switch (layer) {
           case MapLayer.TERRAIN:
             map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).terrain;
             break;
           case MapLayer.LANDSCAPE:
             map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).landscape;
-            break;
-          default:
-            map[i]![j] = -1;
             break;
         }
       }

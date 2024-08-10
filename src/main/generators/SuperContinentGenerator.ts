@@ -17,9 +17,6 @@ export class SuperContinentGenerator implements IMapTerrainGenerator {
   private readonly factorLand = 0.7;
   private readonly factorMountain = 0.05;
   private readonly factorHills = 0.08;
-  //private readonly factorDesert = 0.1;
-  //private readonly factorSwamp = 0.05;
-  //private readonly factorWood = 0.15;
 
   public generate(size: MapSize): number[][] {
     this.size = size;
@@ -124,21 +121,6 @@ export class SuperContinentGenerator implements IMapTerrainGenerator {
 
     // 8. create mountain tiles
     Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles);
-
-    // 9. create random deserts
-    //let desertTiles = grid.size * this.factorDesert;
-    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.DESERT, desertTiles);
-
-    // 10. add forst and jungle
-    //let woodTiles = grid.size * this.factorWood;
-    //Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
-
-    // 11. add swamp
-    //let swampTiles = grid.size * this.factorSwamp;
-    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.SWAMP, swampTiles);
-
-    // 12. snow
-    //Utils.createSnowTiles(grid, this.rows);
 
     return Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
   }

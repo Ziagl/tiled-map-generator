@@ -14,13 +14,10 @@ export class IslandsGenerator implements IMapTerrainGenerator {
   size: MapSize = MapSize.TINY;
 
   // configs for external json?
-  /*private readonly factorLand = 0.8;
+  private readonly factorLand = 0.8;
   private readonly factorWater = 0.35;
   private readonly factorMountain = 0.04;
-  private readonly factorHills = 0.06;*/
-  //private readonly factorDesert = 0.06;
-  //private readonly factorSwamp = 0.03;
-  //private readonly factorWood = 0.1;
+  private readonly factorHills = 0.06;
 
   public generate(size: MapSize): number[][] {
     this.size = size;
@@ -35,7 +32,7 @@ export class IslandsGenerator implements IMapTerrainGenerator {
     grid.forEach((tile) => {
       tile.terrain = TerrainType.SHALLOW_WATER;
     });
-/*
+
     // get maximal number of land tiles
     let landTiles = grid.size * this.factorLand;
     // 2. add randomly continents
@@ -49,7 +46,7 @@ export class IslandsGenerator implements IMapTerrainGenerator {
     for (let i = Utils.MAXCONTINENTSEED; i > Utils.MAXCONTINENTSEED - islandCounter; --i) {
       // find seed
       grid.forEach((tile) => {
-        if (tile.type === i) {
+        if (tile.terrain === i) {
           let tileArray: Tile[] = [];
           tileArray.push(tile);
           islandTiles.push({ key: i, value: tileArray });
@@ -72,7 +69,8 @@ export class IslandsGenerator implements IMapTerrainGenerator {
               const tileNeighbors = Utils.neighbors(grid, [neighbor.q, neighbor.r]);
               if (
                 !tileNeighbors.some(
-                  (tileNeighbor) => tileNeighbor.terrain >= minContinentSeed && tileNeighbor.terrain != continentToExpand,
+                  (tileNeighbor) =>
+                    tileNeighbor.terrain >= minContinentSeed && tileNeighbor.terrain != continentToExpand,
                 )
               ) {
                 neighbor.terrain = continentToExpand;
@@ -96,7 +94,7 @@ export class IslandsGenerator implements IMapTerrainGenerator {
     loopMax = Utils.MAXLOOPS;
     do {
       let tile = Utils.randomTile(grid, rows, columns);
-      if (tile != undefined && tile.type === TerrainType.SHALLOW_WATER) {
+      if (tile != undefined && tile.terrain === TerrainType.SHALLOW_WATER) {
         const tileNeighbors = Utils.neighbors(grid, [tile.q, tile.r]);
         let continentCounter = 0;
         let continentDistinguisher: TerrainType[] = [];
@@ -121,8 +119,8 @@ export class IslandsGenerator implements IMapTerrainGenerator {
     // convert all continent helpers to plains
     const [, maxValue] = Utils.getMinMaxOfEnum(TerrainType);
     grid.forEach((tile) => {
-      if (tile.type > maxValue) {
-        tile.type = TerrainType.PLAIN;
+      if (tile.terrain > maxValue) {
+        tile.terrain = TerrainType.PLAIN;
       }
     });
 
@@ -171,21 +169,6 @@ export class IslandsGenerator implements IMapTerrainGenerator {
 
     // 7. create mountain tiles
     Utils.hillsToMountains(grid, this.rows, this.columns, mountainTiles);
-*/
-    // 8. create random deserts
-    //let desertTiles = grid.size * this.factorDesert;
-    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.DESERT, desertTiles);
-
-    // 9. add forst and jungle
-    //let woodTiles = grid.size * this.factorWood;
-    //Utils.addWoodTiles(grid, this.rows, this.columns, woodTiles);
-
-    // 10. add swamp
-    //let swampTiles = grid.size * this.factorSwamp;
-    //Utils.addRandomTile(grid, this.rows, this.columns, TerrainType.SWAMP, swampTiles);
-
-    // 11. snow
-    //Utils.createSnowTiles(grid, this.rows);
 
     return Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
   }

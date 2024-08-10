@@ -18,7 +18,7 @@ export class TileMap {
   public tilesets: TileSet[];
   public tilewidth: number;
   public type: string;
-  public version: number;
+  public version: string;
   public width: number;
 
   constructor() {
@@ -33,12 +33,12 @@ export class TileMap {
     this.renderorder = 'right-down';
     this.staggeraxis = 'y';
     this.staggerindex = 'odd';
-    this.tiledversion = '1.10.2';
+    this.tiledversion = '1.11.0';
     this.tileheight = 0;
     this.tilesets = [];
     this.tilewidth = 0;
     this.type = 'map';
-    this.version = 1.1;
+    this.version = '1.1';
     this.width = 0;
   }
 }

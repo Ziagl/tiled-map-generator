@@ -84,11 +84,10 @@ export class Generator {
    * export generated map
    * @returns a tuple of map data, x dimension, and y dimension
    */
-  public exportMap(): [number[], number, number] {
+  public exportMap(): [number[][], number, number] {
     const terrainMap = this.exportTerrainMap();
-    //const landscapeMap = this.exportLandscapeMap();
-    // TODO -> merge terrain and landscape maps
-    return terrainMap;
+    const landscapeMap = this.exportLandscapeMap();
+    return [[terrainMap[0], landscapeMap[0]], terrainMap[1], terrainMap[2]];
   }
 
   public exportTerrainMap(): [number[], number, number] {
@@ -108,7 +107,7 @@ export class Generator {
     for (let type = 0; type < this._map.length; ++type) {
       const layer = this._map[type];
       response += this._layers[type] + '\n';
-      if(layer !== undefined) {
+      if (layer !== undefined) {
         for (let i = 0; i < this._map_x; ++i) {
           const row = layer[i];
           // @ts-ignore
