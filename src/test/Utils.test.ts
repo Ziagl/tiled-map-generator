@@ -2,7 +2,7 @@ import { Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../main/enums/MapSize';
 import { Utils } from '../main/generators/Utils';
 import { TileDistribution } from '../main/models/TileDistribution';
-import { Tile } from '../main/generators/Tile';
+import { Tile } from '../main/models/Tile';
 
 test('tileDistributionClass', () => {
   let distribution = new TileDistribution(0.0, 0.1, 0.8, 0.1);

@@ -2,7 +2,7 @@ import { Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../enums/MapSize';
 import { MapType } from '../enums/MapType';
 import { IMapTerrainGenerator } from '../interfaces/IMapTerrainGenerator';
-import { Tile } from './Tile';
+import { Tile } from '../models/Tile';
 import { Utils } from './Utils';
 import { TerrainType } from '../enums/TerrainType';
 import { MapLayer } from '../enums/MapLayer';

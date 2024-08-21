@@ -1,23 +1,27 @@
 import { Grid, rectangle } from 'honeycomb-grid';
 import { MapHumidity } from '../enums/MapHumidity';
 import { MapTemperature } from '../enums/MapTemperature';
-import { Tile } from '../generators/Tile';
+import { Tile } from '../models/Tile';
 import { Utils } from '../generators/Utils';
 import { IMapLandscapeShaper } from '../interfaces/IMapLandscapeShaper';
 import { LandscapeType } from '../enums/LandscapeType';
 import { MapLayer } from '../enums/MapLayer';
 import { TerrainType } from '../enums/TerrainType';
 import { TileDistribution } from '../models/TileDistribution';
+import { WaterFlowType } from '../enums/WaterFlowType';
+import { MapSize } from '../enums/MapSize';
 
 export class DefaultShaper implements IMapLandscapeShaper {
   readonly temperature: MapTemperature;
   readonly humidity: MapHumidity;
+  readonly size: MapSize;
   readonly rows: number;
   readonly columns: number;
 
-  constructor(temperature: MapTemperature, humidity: MapHumidity, rows: number, columns: number) {
+  constructor(temperature: MapTemperature, humidity: MapHumidity, size: MapSize, rows: number, columns: number) {
     this.temperature = temperature;
     this.humidity = humidity;
+    this.size = size;
     this.rows = rows;
     this.columns = columns;
   }
@@ -32,6 +36,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     grid.forEach((tile) => {
       tile.terrain = flatMap[mapIndex++]! as TerrainType;
       tile.landscape = LandscapeType.NONE;
+      tile.river = WaterFlowType.NONE;
     });
 
     const factorGrass = 0.3;
@@ -40,6 +45,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorOasis = 0.05;
     const factorSwamp = 0.05;
     const factorWood = 0.3;
+    const factorRiver = 1.0;
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -174,8 +180,28 @@ export class DefaultShaper implements IMapLandscapeShaper {
       volcanoDistribution,
     );
 
+    // how many rivers should we create? depending on map size
+    const rivers = Math.floor(factorRiver * this.size);
+
+    this.computeRivers(grid, rivers);
+
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     return [terrain, landscape];
+  }
+
+  private computeRivers(grid: Grid<Tile>, rivers: number): void {
+    // add rivers and water
+    grid.forEach((tile) => {
+      if (tile.terrain === TerrainType.DEEP_WATER || tile.terrain === TerrainType.SHALLOW_WATER) {
+        tile.river = WaterFlowType.WATER;
+      }
+      else if (tile.terrain === TerrainType.MOUNTAIN) {
+        tile.river = WaterFlowType.MOUNTAIN;
+      }
+    });
+
+    // add rivers
+    // TODO
   }
 }

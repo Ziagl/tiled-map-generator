@@ -22,7 +22,7 @@ import { DefaultShaper } from './shapers/DefaultShaper';
 // and generates a map with specific ruleset and exports its data
 // print methods are useful for debug purposes
 export class Generator {
-  private readonly _layers: string[] = ['terrain', 'landscape']; // layers of map
+  private readonly _layers: string[] = ['terrain', 'landscape', 'river']; // layers of map
   private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
@@ -73,7 +73,7 @@ export class Generator {
     }
 
     const [rows, columns] = Utils.convertMapSize(size);
-    shaper = new DefaultShaper(temperature, humidity, rows, columns);
+    shaper = new DefaultShaper(temperature, humidity, size, rows, columns);
 
     this._map = shaper.generate(generator.generate(size));
     this._map_x = generator.rows;

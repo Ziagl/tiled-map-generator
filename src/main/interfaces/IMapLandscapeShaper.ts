@@ -1,7 +1,7 @@
 import { MapTemperature } from '../enums/MapTemperature';
 import { MapHumidity } from '../enums/MapHumidity';
 
-// basic interface for all terrain generator classes
+// basic interface for all landscape shaper classes
 export interface IMapLandscapeShaper {
   readonly temperature: MapTemperature;
   readonly humidity: MapHumidity;

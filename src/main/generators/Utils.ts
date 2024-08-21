@@ -1,6 +1,6 @@
 import { Direction, Grid } from 'honeycomb-grid';
 import { MapSize } from '../enums/MapSize';
-import { Tile } from './Tile';
+import { Tile } from '../models/Tile';
 import { TerrainType } from '../enums/TerrainType';
 import { LandscapeType } from '../enums/LandscapeType';
 import { MapLayer } from '../enums/MapLayer';
