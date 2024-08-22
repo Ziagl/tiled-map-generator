@@ -1,8 +1,9 @@
 import { Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../main/enums/MapSize';
-import { Utils } from '../main/generators/Utils';
+import { Utils } from '../main/Utils';
 import { TileDistribution } from '../main/models/TileDistribution';
 import { Tile } from '../main/models/Tile';
+import { TerrainType } from '../main';
 
 test('tileDistributionClass', () => {
   let distribution = new TileDistribution(0.0, 0.1, 0.8, 0.1);
@@ -57,4 +58,24 @@ test('getMinMaxOfEnum', () => {
   let data = Utils.getMinMaxOfEnum(MapSize);
   expect(data[0]).toBe(1);
   expect(data[1]).toBe(6);
+});
+test('distanceToWater', () => {
+  const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+  grid.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  let tile = grid.getHex({ col: 4, row: 3 }) as Tile;
+  tile.terrain = TerrainType.SHALLOW_WATER;
+  let distance = Utils.distanceToWater(grid, 4, 4, 10, 10);
+  expect(distance).toBe(2);
+
+  const grid1 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+  grid1.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  tile = grid1.getHex({ col: 0, row: 0 }) as Tile;
+  tile.terrain = TerrainType.SHALLOW_WATER;
+  distance = Utils.distanceToWater(grid1, 4, 4, 10, 10);
+  expect(distance).toBe(8);
+
+  const grid2 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+  grid2.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  distance = Utils.distanceToWater(grid2, 4, 4, 10, 10);
+  expect(distance).toBe(0);
 });

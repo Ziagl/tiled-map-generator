@@ -13,7 +13,7 @@ import { LakesGenerator } from './generators/LakesGenerator';
 import { RandomGenerator } from './generators/RandomGenerator';
 import { SmallContinentsGenerator } from './generators/SmallContinentsGenerator';
 import { SuperContinentGenerator } from './generators/SuperContinentGenerator';
-import { Utils } from './generators/Utils';
+import { Utils } from './Utils';
 import { IMapLandscapeShaper } from './interfaces/IMapLandscapeShaper';
 import { IMapTerrainGenerator } from './interfaces/IMapTerrainGenerator';
 import { DefaultShaper } from './shapers/DefaultShaper';

@@ -4,7 +4,7 @@ import { MapType } from '../enums/MapType';
 import { TerrainType } from '../enums/TerrainType';
 import { IMapTerrainGenerator } from '../interfaces/IMapTerrainGenerator';
 import { Tile } from '../models/Tile';
-import { Utils } from './Utils';
+import { Utils } from '../Utils';
 import { Grid, rectangle } from 'honeycomb-grid';
 
 export class HighlandGenerator implements IMapTerrainGenerator {

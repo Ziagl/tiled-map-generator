@@ -2,7 +2,7 @@ import { Grid, rectangle } from 'honeycomb-grid';
 import { MapHumidity } from '../enums/MapHumidity';
 import { MapTemperature } from '../enums/MapTemperature';
 import { Tile } from '../models/Tile';
-import { Utils } from '../generators/Utils';
+import { Utils } from '../Utils';
 import { IMapLandscapeShaper } from '../interfaces/IMapLandscapeShaper';
 import { LandscapeType } from '../enums/LandscapeType';
 import { MapLayer } from '../enums/MapLayer';
@@ -10,6 +10,7 @@ import { TerrainType } from '../enums/TerrainType';
 import { TileDistribution } from '../models/TileDistribution';
 import { WaterFlowType } from '../enums/WaterFlowType';
 import { MapSize } from '../enums/MapSize';
+import { Mountain } from '../models/Mountain';
 
 export class DefaultShaper implements IMapLandscapeShaper {
   readonly temperature: MapTemperature;
@@ -46,6 +47,12 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorSwamp = 0.05;
     const factorWood = 0.3;
     const factorRiver = 1.0;
+    
+    // how many rivers should we create? depending on map size
+    const rivers = Math.floor(factorRiver * this.size);
+
+    // generate rivers
+    this.computeRivers(grid, rivers);
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -180,17 +187,38 @@ export class DefaultShaper implements IMapLandscapeShaper {
       volcanoDistribution,
     );
 
-    // how many rivers should we create? depending on map size
-    const rivers = Math.floor(factorRiver * this.size);
-
-    this.computeRivers(grid, rivers);
-
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     return [terrain, landscape];
   }
 
   private computeRivers(grid: Grid<Tile>, rivers: number): void {
+    // create a list of mountains
+    let mountains: Mountain[] = [];
+    for (let y = 0; y < this.rows; ++y) {
+      for (let x = 0; x < this.columns; ++x) {
+        if ((grid.getHex({ col: x, row: y }) as Tile).terrain === TerrainType.MOUNTAIN) {
+          mountains.push(new Mountain(x, y));
+        }
+      }
+    }
+    // compute distance to water for each mountain
+    mountains.forEach((mountain) => {
+      mountain.distanceToWater = Utils.distanceToWater(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
+    });
+    // sort mountains descending by distance to water
+    mountains.sort((a, b) => b.distanceToWater - a.distanceToWater);
+
+    /*console.log(mountains.length + " mountains found");
+    console.log("1. mountain: " + mountains[0]?.distanceToWater);
+    console.log("2. mountain: " + mountains[1]?.distanceToWater);
+    console.log("3. mountain: " + mountains[2]?.distanceToWater);
+    console.log("last. mountain: " + mountains[mountains.length - 1]?.distanceToWater);*/
+    // create a sorted list of best mountains
+    // best == distance to water, 2.nd best = distance to water and distance to mountain 1 and so on
+
+    /*let mountainsToUse = 0;
+
     // add rivers and water
     grid.forEach((tile) => {
       if (tile.terrain === TerrainType.DEEP_WATER || tile.terrain === TerrainType.SHALLOW_WATER) {
@@ -198,10 +226,8 @@ export class DefaultShaper implements IMapLandscapeShaper {
       }
       else if (tile.terrain === TerrainType.MOUNTAIN) {
         tile.river = WaterFlowType.MOUNTAIN;
+        ++mountainsToUse;
       }
-    });
-
-    // add rivers
-    // TODO
+    });*/
   }
 }

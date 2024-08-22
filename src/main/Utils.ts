@@ -1,11 +1,11 @@
-import { Direction, Grid } from 'honeycomb-grid';
-import { MapSize } from '../enums/MapSize';
-import { Tile } from '../models/Tile';
-import { TerrainType } from '../enums/TerrainType';
-import { LandscapeType } from '../enums/LandscapeType';
-import { MapLayer } from '../enums/MapLayer';
-import { MapTemperature } from '../enums/MapTemperature';
-import { TileDistribution } from '../models/TileDistribution';
+import { Direction, Grid, ring } from 'honeycomb-grid';
+import { MapSize } from './enums/MapSize';
+import { Tile } from './models/Tile';
+import { TerrainType } from './enums/TerrainType';
+import { LandscapeType } from './enums/LandscapeType';
+import { MapLayer } from './enums/MapLayer';
+import { MapTemperature } from './enums/MapTemperature';
+import { TileDistribution } from './models/TileDistribution';
 
 export class Utils {
   public static readonly MAXLOOPS = 10000;
@@ -527,5 +527,23 @@ export class Utils {
     }
 
     return map;
+  }
+
+  // computes the distance to next water tile
+  public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows:number, columns:number):number {
+    let distance = 0;
+    let radius = 1;
+    const maxRadius = Math.max(rows, columns);
+    do{
+      const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
+      const tiles = grid.traverse(radiusRing);
+      tiles.forEach((tile) => {
+        if(tile.terrain === TerrainType.SHALLOW_WATER || tile.terrain === TerrainType.DEEP_WATER){
+          distance = radius;
+        }
+      });
+      ++radius;
+    } while (distance === 0 && radius <= maxRadius);
+    return distance;
   }
 }
