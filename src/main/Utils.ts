@@ -6,6 +6,7 @@ import { LandscapeType } from './enums/LandscapeType';
 import { MapLayer } from './enums/MapLayer';
 import { MapTemperature } from './enums/MapTemperature';
 import { TileDistribution } from './models/TileDistribution';
+import { Mountain } from './models/Mountain';
 
 export class Utils {
   public static readonly MAXLOOPS = 10000;
@@ -545,5 +546,50 @@ export class Utils {
       ++radius;
     } while (distance === 0 && radius <= maxRadius);
     return distance;
+  }
+
+  // creates a path from given mountain to a water tile nearby
+  public static createRiverPath(grid: Grid<Tile>, mountain: Mountain): Tile[] {
+    let openList: Tile[] = [];
+    let closedList: Tile[][] = [];
+    let riverPath: Tile[] = [];
+    let loopMax = Utils.MAXLOOPS;
+    let nextTile:Tile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
+    console.log("start at: "+nextTile.q+","+nextTile.r+","+nextTile.s);
+    let success = false;
+    do{
+      // add current open list to closed list
+      if(openList.length > 0){
+        closedList.push(openList);
+        openList = [];
+      }
+      // get neighbors and add neighbors to open list
+      let neighbors = Utils.neighbors(grid, [nextTile.q, nextTile.r]);
+      neighbors.forEach((neighbor) => {
+        if(success === false) {
+          if(neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER){
+            // found water tile -> clear open list
+            openList = [];
+            console.log("found water at: "+neighbor.q+","+neighbor.r+","+neighbor.s);
+            success = true;
+          }
+          else if(neighbor.terrain != TerrainType.MOUNTAIN){
+            // if it is not a mountain tile and not already in closed list
+            if(!closedList.some((list) => list.includes(neighbor))){
+              openList.push(neighbor);
+            }
+          }
+        }
+      });
+      // select next tile
+      if(openList.length > 0 && success === false){
+        nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
+        riverPath.push(nextTile);
+      }
+      --loopMax;
+    }while(loopMax > 0 && openList.length > 0);
+    console.log("River path created with " + riverPath.length + " tiles.");
+    console.log("Success: " + success);
+    return riverPath;
   }
 }

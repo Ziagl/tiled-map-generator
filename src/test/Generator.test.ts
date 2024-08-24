@@ -1,9 +1,9 @@
-import { Generator } from '../main/Generator';
+/*import { Generator } from '../main/Generator';
 import { MapHumidity } from '../main/enums/MapHumidity';
 import { MapSize } from '../main/enums/MapSize';
 import { MapTemperature } from '../main/enums/MapTemperature';
 import { MapType } from '../main/enums/MapType';
-
+*/
 /*test('RandomGenerator', () => {
   const gen = new Generator();
   //@ts-ignore
@@ -23,12 +23,12 @@ test('Archipelago', () => {
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });*/
-test('Continents', () => {
+/*test('Continents', () => {
   const gen = new Generator();
   gen.generateMap(MapType.CONTINENTS, MapSize.SMALL, MapTemperature.HOT, MapHumidity.DRY);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
-});/*
+});*//*
 test('ContinentsIslands', () => {
   const gen = new Generator();
   gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);

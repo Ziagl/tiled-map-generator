@@ -209,15 +209,17 @@ export class DefaultShaper implements IMapLandscapeShaper {
     // sort mountains descending by distance to water
     mountains.sort((a, b) => b.distanceToWater - a.distanceToWater);
 
-    /*console.log(mountains.length + " mountains found");
-    console.log("1. mountain: " + mountains[0]?.distanceToWater);
-    console.log("2. mountain: " + mountains[1]?.distanceToWater);
-    console.log("3. mountain: " + mountains[2]?.distanceToWater);
-    console.log("last. mountain: " + mountains[mountains.length - 1]?.distanceToWater);*/
-    // create a sorted list of best mountains
-    // best == distance to water, 2.nd best = distance to water and distance to mountain 1 and so on
+    // create given amount of rivers
+    //for(let i = 0; i < rivers; ++i) {
+      const mountain = mountains.shift();
+      /*const riverPath = */Utils.createRiverPath(grid, mountain!);
+      //break;
+      // compute distance to used mountain
+      // sort list of mountains
+    //}
 
-    /*let mountainsToUse = 0;
+
+    /*let mountainsToUse = 0;0
 
     // add rivers and water
     grid.forEach((tile) => {
