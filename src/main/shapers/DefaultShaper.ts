@@ -49,10 +49,10 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorRiver = 1.0;
     
     // how many rivers should we create? depending on map size
-    const rivers = Math.floor(factorRiver * this.size);
+    const riverCount = Math.floor(factorRiver * this.size);
 
     // generate rivers
-    this.computeRivers(grid, rivers);
+    this.computeRivers(grid, riverCount);
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -189,9 +189,11 @@ export class DefaultShaper implements IMapLandscapeShaper {
 
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
-    return [terrain, landscape];
+    const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
+    return [terrain, landscape, rivers];
   }
 
+  // compute given number of rivers on given grid
   private computeRivers(grid: Grid<Tile>, rivers: number): void {
     // create a list of mountains
     let mountains: Mountain[] = [];
@@ -210,26 +212,35 @@ export class DefaultShaper implements IMapLandscapeShaper {
     mountains.sort((a, b) => b.distanceToWater - a.distanceToWater);
 
     // create given amount of rivers
-    //for(let i = 0; i < rivers; ++i) {
+    let generatedRivers:Tile[][] = [];
+    for(let i = 0; i < rivers; ++i) {
       const mountain = mountains.shift();
-      /*const riverPath = */Utils.createRiverPath(grid, mountain!);
-      //break;
-      // compute distance to used mountain
-      // sort list of mountains
-    //}
+      let maxTry = 10;
+      let riverPath:Tile[] = [];
+      // try maxTry times to get a random river from this mountain
+      do{
+        riverPath = Utils.createRiverPath(grid, mountain!);
+        --maxTry;
+      }while(maxTry > 0 && riverPath.length === 0);
+      if(riverPath.length > 0) {
+        // mark all river tiles on the grid
+        riverPath.forEach((tile) => {
+          tile.river = WaterFlowType.RIVER;
+        });
+        // maybe we need to expand this for a tile so river is always  between two tiles
+        // TODO?
 
+        // add river to list of rivers
+        generatedRivers.push(riverPath);
 
-    /*let mountainsToUse = 0;0
-
-    // add rivers and water
-    grid.forEach((tile) => {
-      if (tile.terrain === TerrainType.DEEP_WATER || tile.terrain === TerrainType.SHALLOW_WATER) {
-        tile.river = WaterFlowType.WATER;
+        // compute distance to next river
+        mountains.forEach((mountain) => {
+          mountain.distanceToRiver = Utils.distanceToRiver(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
+        });
+        
+        // sort list of mountains
+        mountains.sort((a, b) => (b.distanceToWater + b.distanceToRiver) - (a.distanceToWater + a.distanceToRiver));
       }
-      else if (tile.terrain === TerrainType.MOUNTAIN) {
-        tile.river = WaterFlowType.MOUNTAIN;
-        ++mountainsToUse;
-      }
-    });*/
+    }
   }
 }

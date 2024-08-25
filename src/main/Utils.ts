@@ -7,6 +7,7 @@ import { MapLayer } from './enums/MapLayer';
 import { MapTemperature } from './enums/MapTemperature';
 import { TileDistribution } from './models/TileDistribution';
 import { Mountain } from './models/Mountain';
+import { WaterFlowType } from './enums/WaterFlowType';
 
 export class Utils {
   public static readonly MAXLOOPS = 10000;
@@ -523,6 +524,9 @@ export class Utils {
           case MapLayer.LANDSCAPE:
             map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).landscape;
             break;
+          case MapLayer.RIVERS:
+            map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).river;
+            break;
         }
       }
     }
@@ -548,6 +552,24 @@ export class Utils {
     return distance;
   }
 
+  // computes the distance to next river tile
+  public static distanceToRiver(grid: Grid<Tile>, x: number, y: number, rows:number, columns:number):number {
+    let distance = 0;
+    let radius = 1;
+    const maxRadius = Math.max(rows, columns);
+    do{
+      const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
+      const tiles = grid.traverse(radiusRing);
+      tiles.forEach((tile) => {
+        if(tile.river === WaterFlowType.RIVER){
+          distance = radius;
+        }
+      });
+      ++radius;
+    } while (distance === 0 && radius <= maxRadius);
+    return distance;
+  }
+
   // creates a path from given mountain to a water tile nearby
   public static createRiverPath(grid: Grid<Tile>, mountain: Mountain): Tile[] {
     let openList: Tile[] = [];
@@ -555,7 +577,6 @@ export class Utils {
     let riverPath: Tile[] = [];
     let loopMax = Utils.MAXLOOPS;
     let nextTile:Tile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
-    console.log("start at: "+nextTile.q+","+nextTile.r+","+nextTile.s);
     let success = false;
     do{
       // add current open list to closed list
@@ -570,7 +591,6 @@ export class Utils {
           if(neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER){
             // found water tile -> clear open list
             openList = [];
-            console.log("found water at: "+neighbor.q+","+neighbor.r+","+neighbor.s);
             success = true;
           }
           else if(neighbor.terrain != TerrainType.MOUNTAIN){
@@ -584,12 +604,16 @@ export class Utils {
       // select next tile
       if(openList.length > 0 && success === false){
         nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
+        // TODO
+        // tile that is at least far away from water instead of random???
         riverPath.push(nextTile);
       }
       --loopMax;
     }while(loopMax > 0 && openList.length > 0);
-    console.log("River path created with " + riverPath.length + " tiles.");
-    console.log("Success: " + success);
-    return riverPath;
+    if(success) {
+      return riverPath;
+    } else {
+      return [];
+    }
   }
 }

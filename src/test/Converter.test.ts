@@ -1,4 +1,4 @@
-/*import { Converter } from '../main/Converter';
+import { Converter } from '../main/Converter';
 import { Generator } from '../main/Generator';
 import { MapHumidity } from '../main/enums/MapHumidity';
 import { MapSize } from '../main/enums/MapSize';
@@ -32,4 +32,4 @@ test('generateTiledFile', () => {
   const [map, rows, columns] = gen.exportMap();
   const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, '#ffffff');
   fs.writeFileSync('src/example/test.json', result);
-});*/
+});
