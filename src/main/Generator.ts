@@ -87,7 +87,8 @@ export class Generator {
   public exportMap(): [number[][], number, number] {
     const terrainMap = this.exportTerrainMap();
     const landscapeMap = this.exportLandscapeMap();
-    return [[terrainMap[0], landscapeMap[0]], terrainMap[1], terrainMap[2]];
+    const riverMap = this.exportRiverMap();
+    return [[terrainMap[0], landscapeMap[0], riverMap[0]], terrainMap[1], terrainMap[2]];
   }
 
   public exportTerrainMap(): [number[], number, number] {
@@ -96,6 +97,10 @@ export class Generator {
 
   public exportLandscapeMap(): [number[], number, number] {
     return [this._map[MapLayer.LANDSCAPE]!.flat(), this._map_x, this._map_y];
+  }
+
+  public exportRiverMap(): [number[], number, number] {
+    return [this._map[MapLayer.RIVERS]!.flat(), this._map_x, this._map_y];
   }
 
   /**
