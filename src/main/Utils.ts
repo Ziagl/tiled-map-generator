@@ -603,7 +603,9 @@ export class Utils {
       });
       // select next tile
       if(openList.length > 0 && success === false){
+        // option 1: random tile
         nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
+        // option 2: choose one tile that is at least far away from water instead of random
         // TODO
         // tile that is at least far away from water instead of random???
         riverPath.push(nextTile);
