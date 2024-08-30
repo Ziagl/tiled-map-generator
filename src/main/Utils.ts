@@ -631,21 +631,24 @@ export class Utils {
       });
       // select next tile
       if(openList.length > 0 && success === false){
-        /*let possibleTiles: Tile[] = [];
+        let possibleTiles: Tile[] = [];
         for(let i = 0; i < openList.length; i++) {
           const distanceToMountain = (Math.abs(mountainTile.q - openList[i]!.q) + Math.abs(mountainTile.r - openList[i]!.r) + Math.abs(mountainTile.s - openList[i]!.s)) / 2;
           if(distanceToMountain > lastDistance){
             possibleTiles.push(openList[i]!);
           }
         }
-        // option 1: random tile
-        nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
-        lastDistance = (Math.abs(mountainTile.q - nextTile.q) + Math.abs(mountainTile.r - nextTile.r) + Math.abs(mountainTile.s - nextTile.s)) / 2;
-        // option 2: choose first tile, but sort by distanceToMountain first
-        // TODO?
-        */
-       nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
-        riverPath.push(nextTile);
+        if(possibleTiles.length > 0){
+          // option 1: random tile
+          nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
+          lastDistance = (Math.abs(mountainTile.q - nextTile.q) + Math.abs(mountainTile.r - nextTile.r) + Math.abs(mountainTile.s - nextTile.s)) / 2;
+          // option 2: sort by distanceToMountain first
+          // TODO?
+          riverPath.push(nextTile);
+        } else {
+          closedList.push(openList);
+          openList = [];
+        }
       }
       --loopMax;
     }while(loopMax > 0 && openList.length > 0);
