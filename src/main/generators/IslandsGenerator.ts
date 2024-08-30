@@ -62,11 +62,11 @@ export class IslandsGenerator implements IMapTerrainGenerator {
       if (islandTilesArray != undefined) {
         islandTilesArray = Utils.shuffle<Tile>(islandTilesArray);
         islandTilesArray.forEach((tile) => {
-          const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+          const neighbors = Utils.randomNeighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
           neighbors.forEach((neighbor) => {
             if (neighbor.terrain === TerrainType.SHALLOW_WATER && landTiles > 0) {
               // check if an adjacent field is not from another continent (continents should not touch!)
-              const tileNeighbors = Utils.neighbors(grid, [neighbor.q, neighbor.r]);
+              const tileNeighbors = Utils.neighbors(grid, { q: neighbor.q, r: neighbor.r, s: neighbor.s });
               if (
                 !tileNeighbors.some(
                   (tileNeighbor) =>
@@ -95,7 +95,7 @@ export class IslandsGenerator implements IMapTerrainGenerator {
     do {
       let tile = Utils.randomTile(grid, rows, columns);
       if (tile != undefined && tile.terrain === TerrainType.SHALLOW_WATER) {
-        const tileNeighbors = Utils.neighbors(grid, [tile.q, tile.r]);
+        const tileNeighbors = Utils.neighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         let continentCounter = 0;
         let continentDistinguisher: TerrainType[] = [];
         tileNeighbors.forEach((neighbor) => {
@@ -105,7 +105,7 @@ export class IslandsGenerator implements IMapTerrainGenerator {
           }
         });
         if (continentCounter > 1) {
-          const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+          const neighbors = Utils.randomNeighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
           neighbors.forEach((neighbor) => {
             if (neighbor.terrain != TerrainType.SHALLOW_WATER) {
               neighbor.terrain = TerrainType.SHALLOW_WATER;

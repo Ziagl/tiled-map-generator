@@ -98,6 +98,40 @@ test('getMinMaxOfEnum', () => {
   expect(data[0]).toBe(1);
   expect(data[1]).toBe(6);
 });
+test('findCommonTiles', () => {
+  const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
+  const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
+  const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
+  let tileArray1:Tile[] = [];
+  array1.forEach((tile) => { tileArray1.push(tile); });
+  let tileArray2:Tile[] = [];
+  array2.forEach((tile) => { tileArray2.push(tile); });
+  let tileArray3:Tile[] = [];
+  array3.forEach((tile) => { tileArray3.push(tile); });
+  let common = Utils.findCommonTiles([tileArray1, tileArray2]);
+  expect(common.length).toBe(2);
+  common = Utils.findCommonTiles([tileArray1, tileArray3]);
+  expect(common.length).toBe(4);
+  common = Utils.findCommonTiles([tileArray1, tileArray2, tileArray3]);
+  expect(common.length).toBe(2);
+});
+test('removeCommonTiles', () => {
+  const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
+  const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
+  const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
+  let tileArray1:Tile[] = [];
+  array1.forEach((tile) => { tileArray1.push(tile); });
+  let tileArray2:Tile[] = [];
+  array2.forEach((tile) => { tileArray2.push(tile); });
+  let tileArray3:Tile[] = [];
+  array3.forEach((tile) => { tileArray3.push(tile); });
+  let common = Utils.removeCommonTiles(tileArray1, tileArray2);
+  expect(common.length).toBe(2);
+  common = Utils.removeCommonTiles(tileArray2, tileArray1);
+  expect(common.length).toBe(3);
+  common = Utils.removeCommonTiles(tileArray1, tileArray3);
+  expect(common.length).toBe(0);
+});
 test('distanceToWater', () => {
   const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
   grid.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
@@ -137,21 +171,4 @@ test('createRiverPath', () => {
   const mountain2 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
   path = Utils.createRiverPath(grid2, mountain2);
   expect(path.length).toBeGreaterThan(2);
-});
-test('findCommonTiles', () => {
-  const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
-  const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
-  const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
-  let tileArray1:Tile[] = [];
-  array1.forEach((tile) => { tileArray1.push(tile); });
-  let tileArray2:Tile[] = [];
-  array2.forEach((tile) => { tileArray2.push(tile); });
-  let tileArray3:Tile[] = [];
-  array3.forEach((tile) => { tileArray3.push(tile); });
-  let common = Utils.findCommonTiles([tileArray1, tileArray2]);
-  expect(common.length).toBe(2);
-  common = Utils.findCommonTiles([tileArray1, tileArray3]);
-  expect(common.length).toBe(4);
-  common = Utils.findCommonTiles([tileArray1, tileArray2, tileArray3]);
-  expect(common.length).toBe(2);
 });

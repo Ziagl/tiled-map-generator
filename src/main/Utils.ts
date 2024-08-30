@@ -1,4 +1,4 @@
-import { Direction, Grid, ring } from 'honeycomb-grid';
+import { CubeCoordinates, Direction, Grid, ring } from 'honeycomb-grid';
 import { MapSize } from './enums/MapSize';
 import { Tile } from './models/Tile';
 import { TerrainType } from './enums/TerrainType';
@@ -80,40 +80,66 @@ export class Utils {
     return grid.getHex({ col: column, row: row });
   }
 
-  // returns all up to 6 neighbors of given grid and coordinate
-  public static neighbors(grid: Grid<Tile>, coordinates: [q: number, r: number]): Tile[] {
+  // get all neighbors of given tile (pointy layout)
+  public static neighbors(grid: Grid<Tile>, coordinates: CubeCoordinates): Tile[] {
     let neighbors: Tile[] = [];
+    const directions: Direction[] = [Direction.NE, Direction.E, Direction.SE, Direction.SW, Direction.W, Direction.NW];
 
-    if (grid.neighborOf(coordinates, Direction.N, { allowOutside: false }) !== undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.N));
-    }
-    if (grid.neighborOf(coordinates, Direction.NE, { allowOutside: false }) !== undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.NE));
-    }
-    if (grid.neighborOf(coordinates, Direction.E, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.E));
-    }
-    if (grid.neighborOf(coordinates, Direction.SE, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.SE));
-    }
-    if (grid.neighborOf(coordinates, Direction.S, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.S));
-    }
-    if (grid.neighborOf(coordinates, Direction.SW, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.SW));
-    }
-    if (grid.neighborOf(coordinates, Direction.W, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.W));
-    }
-    if (grid.neighborOf(coordinates, Direction.NW, { allowOutside: false }) != undefined) {
-      neighbors.push(grid.neighborOf(coordinates, Direction.NW));
-    }
+    directions.forEach((direction) => {
+      if (grid.neighborOf(coordinates, direction, { allowOutside: false }) !== undefined) {
+        let tile = grid.neighborOf(coordinates, direction);
+        switch (direction) {
+          case Direction.NE:
+            tile.coordinates = {
+              q: coordinates.q + 1,
+              r: coordinates.r - 1,
+              s: coordinates.s,
+            };
+            break;
+          case Direction.E:
+            tile.coordinates = {
+              q: coordinates.q + 1,
+              r: coordinates.r,
+              s: coordinates.s - 1,
+            };
+          case Direction.SE:
+            tile.coordinates = {
+              q: coordinates.q,
+              r: coordinates.r + 1,
+              s: coordinates.s - 1,
+            };
+            break;
+          case Direction.SW:
+            tile.coordinates = {
+              q: coordinates.q - 1,
+              r: coordinates.r + 1,
+              s: coordinates.s,
+            };
+            break;
+          case Direction.W:
+            tile.coordinates = {
+              q: coordinates.q - 1,
+              r: coordinates.r,
+              s: coordinates.s + 1,
+            };
+            break;
+          case Direction.NW:
+            tile.coordinates = {
+              q: coordinates.q,
+              r: coordinates.r - 1,
+              s: coordinates.s + 1,
+            };
+            break;
+        }
+        neighbors.push(tile);
+      }
+    });
 
     return neighbors;
   }
 
   // returns a random neighbor of given grid and coordinate
-  public static randomNeighbors(grid: Grid<Tile>, coordinates: [q: number, s: number]): Tile[] {
+  public static randomNeighbors(grid: Grid<Tile>, coordinates: CubeCoordinates): Tile[] {
     let allNeighbors = this.neighbors(grid, coordinates);
     let neighbors: Tile[] = [];
 
@@ -132,7 +158,7 @@ export class Utils {
   public static shallowToDeepWater(grid: Grid<Tile>) {
     grid.forEach((tile) => {
       if (tile.terrain === TerrainType.SHALLOW_WATER) {
-        const neighbors = Utils.neighbors(grid, [tile.q, tile.r]);
+        const neighbors = Utils.neighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         // if all neighbors are water tiles -> tile is deep water
         if (
           neighbors.every(
@@ -151,7 +177,7 @@ export class Utils {
     do {
       lakeTiles = Utils.shuffle<Tile>(lakeTiles);
       lakeTiles.forEach((tile) => {
-        const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+        const neighbors = Utils.randomNeighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         neighbors.forEach((neighbor) => {
           if (
             neighbor.terrain != TerrainType.SHALLOW_WATER &&
@@ -174,7 +200,7 @@ export class Utils {
     do {
       plainTiles = Utils.shuffle<Tile>(plainTiles);
       plainTiles.forEach((tile) => {
-        const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+        const neighbors = Utils.randomNeighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         neighbors.forEach((neighbor) => {
           if (neighbor.terrain != TerrainType.PLAIN && landTiles > 0) {
             neighbor.terrain = TerrainType.PLAIN;
@@ -193,7 +219,7 @@ export class Utils {
     do {
       mountainRangesTiles = Utils.shuffle<Tile>(mountainRangesTiles);
       mountainRangesTiles.forEach((tile) => {
-        const neighbors = Utils.randomNeighbors(grid, [tile.q, tile.r]);
+        const neighbors = Utils.randomNeighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         neighbors.forEach((neighbor) => {
           if (
             neighbor.terrain != TerrainType.SHALLOW_WATER &&
@@ -217,7 +243,7 @@ export class Utils {
     do {
       let tile = Utils.randomTile(grid, rows, columns);
       if (tile != undefined && tile.terrain === TerrainType.PLAIN_HILLS) {
-        const neighbors = Utils.neighbors(grid, [tile.q, tile.r]);
+        const neighbors = Utils.neighbors(grid, { q: tile.q, r: tile.r, s: tile.s });
         // if all neighbors are hill tiles or water -> tile is mountain tile
         if (
           neighbors.every(
@@ -576,8 +602,10 @@ export class Utils {
     let closedList: Tile[][] = [];
     let riverPath: Tile[] = [];
     let loopMax = Utils.MAXLOOPS;
-    let nextTile:Tile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
+    const mountainTile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
+    let nextTile:Tile = mountainTile;
     let success = false;
+    let lastDistance = 0;
     do{
       // add current open list to closed list
       if(openList.length > 0){
@@ -585,7 +613,7 @@ export class Utils {
         openList = [];
       }
       // get neighbors and add neighbors to open list
-      let neighbors = Utils.neighbors(grid, [nextTile.q, nextTile.r]);
+      let neighbors = Utils.neighbors(grid, { q: nextTile.q, r: nextTile.r, s: nextTile.s });
       neighbors.forEach((neighbor) => {
         if(success === false) {
           if(neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER){
@@ -603,37 +631,94 @@ export class Utils {
       });
       // select next tile
       if(openList.length > 0 && success === false){
+        /*let possibleTiles: Tile[] = [];
+        for(let i = 0; i < openList.length; i++) {
+          const distanceToMountain = (Math.abs(mountainTile.q - openList[i]!.q) + Math.abs(mountainTile.r - openList[i]!.r) + Math.abs(mountainTile.s - openList[i]!.s)) / 2;
+          if(distanceToMountain > lastDistance){
+            possibleTiles.push(openList[i]!);
+          }
+        }
         // option 1: random tile
-        nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
-        // option 2: choose one tile that is at least far away from water instead of random
-        // TODO
-        // tile that is at least far away from water instead of random???
+        nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
+        lastDistance = (Math.abs(mountainTile.q - nextTile.q) + Math.abs(mountainTile.r - nextTile.r) + Math.abs(mountainTile.s - nextTile.s)) / 2;
+        // option 2: choose first tile, but sort by distanceToMountain first
+        // TODO?
+        */
+       nextTile = openList[Utils.randomNumber(0, openList.length - 1)] as Tile;
         riverPath.push(nextTile);
       }
       --loopMax;
     }while(loopMax > 0 && openList.length > 0);
     // early exit
     if(success == false) {
+      console.log("Error: Could not find a path to water tile.");
       return [];
     }
     // so there is now a path of single tiles, append it for a second tile
-    // 1. mountain tile and first river tile share 2 tiles. if one of them shares second river tile neighbor use it,
-    // if none of them shares a neighbor for second river tile choose randomly one of them
-    //const mountainNeighbors = Utils.neighbors(grid, [mountain.pos_x, mountain.pos_y]);
-    const riverTileNeighbors: Tile[] = [];
+    /*const riverTileNeighbors: Tile[][] = [];
+    const mountainTileNeighbors = Utils.neighbors(grid, [mountainTile.q, mountainTile.r]);
     riverPath.forEach((tile) => {
-      riverTileNeighbors.push(...Utils.neighbors(grid, [tile.q, tile.r]));
+      riverTileNeighbors.push(Utils.neighbors(grid, [tile.q, tile.r]));
     });
-
-    // 2. 
+    let otherRiverBank: Tile[] = [];
+    if(riverPath.length === 1) {
+      // special case if river only contains 1 tile, add a random neighbor tile
+      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!]);
+      if(sharedTiles.length !== 2) {
+        console.log("Error: special case for 1 tile river failed.");
+      } else {
+        // randomly choose one of two neighbors
+        otherRiverBank.push(sharedTiles[Utils.randomNumber(0, 1)] as Tile);
+      }
+    } else {
+      // default case get shared tile of mountain neighbors and neighbors of both first river tiles
+      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!, riverTileNeighbors[1]!]);
+      if(sharedTiles.length == 1) {
+        otherRiverBank.push(sharedTiles[0] as Tile);
+      } else {
+        const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!]);
+        if(localSharedTiles.length !== 2) {
+          console.log("Error: special case for first tile of river failed.");
+        } else {
+          // randomly choose one of two neighbors
+          otherRiverBank.push(localSharedTiles[Utils.randomNumber(0, 1)] as Tile);
+        }
+      }
+      // for all other tiles in riverPath
+      for(let i = 2; i < riverPath.length; i++) {
+        let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i - 1]!, riverTileNeighbors[i]!]);
+        // filter out all neighbor tiles that are part of river
+        sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
+        if(sharedTiles.length == 1) {
+          otherRiverBank.push(sharedTiles[0] as Tile);
+        } else {
+          // a curve in the river may cause this, so we add last added tile again (to match pairs)
+          otherRiverBank.push(otherRiverBank[otherRiverBank.length - 1] as Tile);
+        }
+      }
+    }
+    // merge computed river and otherRiverBank
+    if(riverPath.length != otherRiverBank.length) {
+      console.log("Error: riverPath and otherRiverBank have different lengths.");
+    }*/
+    // TODO
     return riverPath;
+  }
+
+  // returns all elements that are in array1 but not in array2
+  public static removeCommonTiles(array1: Tile[], array2: Tile[]): Tile[] {
+    // custom compare function for tiles
+    const tilesEqual = (t1: Tile, t2: Tile) => t1.q === t2.q && t1.r === t2.r;
+    return array1.filter(tile1 => 
+      !array2.some(tile2 => tilesEqual(tile1, tile2))
+    );
   }
 
   // returns all elements that are in every given array
   public static findCommonTiles(arrays: Tile[][]): Tile[] {
     if (arrays.length === 0) return [];
     if (arrays.length === 1) return arrays[0]!;
-    // custom compate function for tiles
+    // custom compare function for tiles
     const tilesEqual = (t1: Tile, t2: Tile) => t1.q === t2.q && t1.r === t2.r;
     // find longest array
     let indexOflongestArray = 0;
@@ -645,16 +730,27 @@ export class Utils {
       }
     }
     // find tiles that are in all arrays
-    let returnArray = arrays[indexOflongestArray]!;
-    for (let j = 0; j < returnArray!.length; j++) {
-      let found = false;
-      for (let i = 1; i < arrays.length; i++) {
-        if (arrays[i]!.some((tile) => tilesEqual(returnArray[j]!, tile))) {
+    let computeArray = [...arrays[indexOflongestArray]!];
+    let indexToRemove: number[] = [];
+    for (let j = 0; j < computeArray!.length; j++) {
+      for (let i = 0; i < arrays.length; i++) {
+        if(i === indexOflongestArray) {
+          continue;
+        }
+        let found = false;
+        if (arrays[i]!.some((tile) => tilesEqual(computeArray[j] as Tile, tile))) {
           found = true;
         }
+        if(found == false) {
+          indexToRemove.push(j);
+          break;
+        }
       }
-      if(found == false) {
-        returnArray?.splice(j, 1);
+    }
+    let returnArray: Tile[] = [];
+    for(let i = 0; i < computeArray!.length; i++) {
+      if(!indexToRemove.includes(i)) {
+        returnArray.push(computeArray![i] as Tile);
       }
     }
     return returnArray;
