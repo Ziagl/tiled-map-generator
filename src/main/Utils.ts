@@ -612,10 +612,51 @@ export class Utils {
       }
       --loopMax;
     }while(loopMax > 0 && openList.length > 0);
-    if(success) {
-      return riverPath;
-    } else {
+    // early exit
+    if(success == false) {
       return [];
     }
+    // so there is now a path of single tiles, append it for a second tile
+    // 1. mountain tile and first river tile share 2 tiles. if one of them shares second river tile neighbor use it,
+    // if none of them shares a neighbor for second river tile choose randomly one of them
+    //const mountainNeighbors = Utils.neighbors(grid, [mountain.pos_x, mountain.pos_y]);
+    const riverTileNeighbors: Tile[] = [];
+    riverPath.forEach((tile) => {
+      riverTileNeighbors.push(...Utils.neighbors(grid, [tile.q, tile.r]));
+    });
+
+    // 2. 
+    return riverPath;
+  }
+
+  // returns all elements that are in every given array
+  public static findCommonTiles(arrays: Tile[][]): Tile[] {
+    if (arrays.length === 0) return [];
+    if (arrays.length === 1) return arrays[0]!;
+    // custom compate function for tiles
+    const tilesEqual = (t1: Tile, t2: Tile) => t1.q === t2.q && t1.r === t2.r;
+    // find longest array
+    let indexOflongestArray = 0;
+    let longestArraySize = 0;
+    for(let i = 0; i < arrays.length; i++) {
+      if(arrays[i]!.length > longestArraySize) {
+        indexOflongestArray = i;
+        longestArraySize = arrays[i]!.length;
+      }
+    }
+    // find tiles that are in all arrays
+    let returnArray = arrays[indexOflongestArray]!;
+    for (let j = 0; j < returnArray!.length; j++) {
+      let found = false;
+      for (let i = 1; i < arrays.length; i++) {
+        if (arrays[i]!.some((tile) => tilesEqual(returnArray[j]!, tile))) {
+          found = true;
+        }
+      }
+      if(found == false) {
+        returnArray?.splice(j, 1);
+      }
+    }
+    return returnArray;
   }
 }

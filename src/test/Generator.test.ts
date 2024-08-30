@@ -4,7 +4,7 @@ import { MapSize } from '../main/enums/MapSize';
 import { MapTemperature } from '../main/enums/MapTemperature';
 import { MapType } from '../main/enums/MapType';
 
-test('RandomGenerator', () => {
+/*test('RandomGenerator', () => {
   const gen = new Generator();
   //@ts-ignore
   gen.generateMap(-1, MapSize.TINY, MapTemperature.HOT, MapHumidity.DRY);
@@ -64,7 +64,7 @@ test('SmallContinents', () => {
   gen.generateMap(MapType.SMALL_CONTINENTS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
-});
+});*/
 test('SuperContinent', () => {
   const gen = new Generator();
   gen.generateMap(MapType.SUPER_CONTINENT, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);

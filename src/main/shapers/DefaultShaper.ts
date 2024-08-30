@@ -227,7 +227,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
         riverPath.forEach((tile) => {
           tile.river = WaterFlowType.RIVER;
         });
-        // maybe we need to expand this for a tile so river is always  between two tiles
+        // maybe we need to expand this for a tile so river is always between two tiles
         // TODO?
 
         // add river to list of rivers

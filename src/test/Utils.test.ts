@@ -138,3 +138,20 @@ test('createRiverPath', () => {
   path = Utils.createRiverPath(grid2, mountain2);
   expect(path.length).toBeGreaterThan(2);
 });
+test('findCommonTiles', () => {
+  const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
+  const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
+  const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
+  let tileArray1:Tile[] = [];
+  array1.forEach((tile) => { tileArray1.push(tile); });
+  let tileArray2:Tile[] = [];
+  array2.forEach((tile) => { tileArray2.push(tile); });
+  let tileArray3:Tile[] = [];
+  array3.forEach((tile) => { tileArray3.push(tile); });
+  let common = Utils.findCommonTiles([tileArray1, tileArray2]);
+  expect(common.length).toBe(2);
+  common = Utils.findCommonTiles([tileArray1, tileArray3]);
+  expect(common.length).toBe(4);
+  common = Utils.findCommonTiles([tileArray1, tileArray2, tileArray3]);
+  expect(common.length).toBe(2);
+});
