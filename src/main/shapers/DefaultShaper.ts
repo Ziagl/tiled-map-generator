@@ -190,6 +190,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
+    const riverTileDirections = Utils.generateRiverTileDirections(grid, rivers);
     return [terrain, landscape, rivers];
   }
 

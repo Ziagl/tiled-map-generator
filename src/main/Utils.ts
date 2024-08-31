@@ -764,4 +764,20 @@ export class Utils {
     }
     return returnArray;
   }
+
+  // generates a map of coordinates and infos which river tiles should be added (NE, E, SE, SW, W, NW)
+  public static generateRiverTileDirections(grid: Grid<Tile>, riverTiles: Tile[]) {
+    // pre compute neighbors for all river tiles
+    const riverTileNeighbors: Tile[][] = [];
+    riverTiles.forEach((tile) => {
+      riverTileNeighbors.push(Utils.neighbors(grid, { q:tile.q, r:tile.r, s:tile.s }));
+    });
+    // create empty map
+  }
+
+  // detects if two tiles are neighbors and returns the direction from target point of view, undefined if not a neighbor
+  public static detectNeighborhood(source: Tile, sourceNeighbors: Tile[], target: Tile, targetNeighbors: Tile[]): Direction | undefined {
+    
+    return undefined;
+  }
 }
