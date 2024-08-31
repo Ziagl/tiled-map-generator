@@ -653,20 +653,19 @@ export class Utils {
       --loopMax;
     }while(loopMax > 0 && openList.length > 0);
     // early exit
-    if(success == false) {
-      console.log("Error: Could not find a path to water tile.");
+    if(success == false || riverPath.length === 0) {
       return [];
     }
     // so there is now a path of single tiles, append it for a second tile
-    /*const riverTileNeighbors: Tile[][] = [];
-    const mountainTileNeighbors = Utils.neighbors(grid, [mountainTile.q, mountainTile.r]);
+    const riverTileNeighbors: Tile[][] = [];
+    const mountainTileNeighbors = Utils.neighbors(grid, { q:mountainTile.q, r:mountainTile.r, s:mountainTile.s });
     riverPath.forEach((tile) => {
-      riverTileNeighbors.push(Utils.neighbors(grid, [tile.q, tile.r]));
+      riverTileNeighbors.push(Utils.neighbors(grid, { q:tile.q, r:tile.r, s:tile.s }));
     });
     let otherRiverBank: Tile[] = [];
     if(riverPath.length === 1) {
       // special case if river only contains 1 tile, add a random neighbor tile
-      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!]);
+      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
       if(sharedTiles.length !== 2) {
         console.log("Error: special case for 1 tile river failed.");
       } else {
@@ -675,11 +674,11 @@ export class Utils {
       }
     } else {
       // default case get shared tile of mountain neighbors and neighbors of both first river tiles
-      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!, riverTileNeighbors[1]!]);
+      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[], riverTileNeighbors[1] as Tile[]]);
       if(sharedTiles.length == 1) {
         otherRiverBank.push(sharedTiles[0] as Tile);
       } else {
-        const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0]!]);
+        const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
         if(localSharedTiles.length !== 2) {
           console.log("Error: special case for first tile of river failed.");
         } else {
@@ -688,8 +687,11 @@ export class Utils {
         }
       }
       // for all other tiles in riverPath
-      for(let i = 2; i < riverPath.length; i++) {
-        let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i - 1]!, riverTileNeighbors[i]!]);
+      for(let i = 1; i < riverPath.length; i++) {
+        let otherRiverBankNeighbors = Utils.neighbors(grid, { q:otherRiverBank[otherRiverBank.length - 1]!.q, r:otherRiverBank[otherRiverBank.length - 1]!.r, s:otherRiverBank[otherRiverBank.length - 1]!.s });
+        // filter out all river tiles
+        otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
+        let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
         // filter out all neighbor tiles that are part of river
         sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
         if(sharedTiles.length == 1) {
@@ -702,10 +704,14 @@ export class Utils {
     }
     // merge computed river and otherRiverBank
     if(riverPath.length != otherRiverBank.length) {
-      console.log("Error: riverPath and otherRiverBank have different lengths.");
-    }*/
-    // TODO
-    return riverPath;
+      console.log("Error: riverPath "+riverPath.length+" and otherRiverBank "+otherRiverBank.length+" have different lengths.");
+    }
+    let returnRiverPath: Tile[] = [];
+    for(let i = 0; i < riverPath.length; i++) {
+      returnRiverPath.push(riverPath[i] as Tile);
+      returnRiverPath.push(otherRiverBank[i] as Tile);
+    }
+    return returnRiverPath;
   }
 
   // returns all elements that are in array1 but not in array2

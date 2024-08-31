@@ -46,7 +46,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorOasis = 0.05;
     const factorSwamp = 0.05;
     const factorWood = 0.3;
-    const factorRiver = 1.0;
+    const factorRiver = 1.5;
     
     // how many rivers should we create? depending on map size
     const riverCount = Math.floor(factorRiver * this.size);
@@ -227,20 +227,16 @@ export class DefaultShaper implements IMapLandscapeShaper {
         riverPath.forEach((tile) => {
           tile.river = WaterFlowType.RIVER;
         });
-        // maybe we need to expand this for a tile so river is always between two tiles
-        // TODO?
-
         // add river to list of rivers
         generatedRivers.push(riverPath);
-
         // compute distance to next river
         mountains.forEach((mountain) => {
           mountain.distanceToRiver = Utils.distanceToRiver(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
         });
-        
         // sort list of mountains
         mountains.sort((a, b) => (b.distanceToWater + b.distanceToRiver) - (a.distanceToWater + a.distanceToRiver));
       }
     }
+    console.log("Generated rivers: " + generatedRivers.length);
   }
 }

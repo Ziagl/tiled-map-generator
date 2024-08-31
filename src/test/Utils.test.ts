@@ -139,14 +139,12 @@ test('distanceToWater', () => {
   tile.terrain = TerrainType.SHALLOW_WATER;
   let distance = Utils.distanceToWater(grid, 4, 4, 10, 10);
   expect(distance).toBe(2);
-
   const grid1 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
   grid1.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
   tile = grid1.getHex({ col: 0, row: 0 }) as Tile;
   tile.terrain = TerrainType.SHALLOW_WATER;
   distance = Utils.distanceToWater(grid1, 4, 4, 10, 10);
   expect(distance).toBe(8);
-
   const grid2 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
   grid2.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
   distance = Utils.distanceToWater(grid2, 4, 4, 10, 10);
