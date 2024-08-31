@@ -1,10 +1,11 @@
-import { Grid, rectangle } from 'honeycomb-grid';
+import { Direction, Grid, rectangle } from 'honeycomb-grid';
 import { MapSize } from '../main/enums/MapSize';
 import { Utils } from '../main/Utils';
 import { TileDistribution } from '../main/models/TileDistribution';
 import { Tile } from '../main/models/Tile';
 import { TerrainType } from '../main';
 import { Mountain } from '../main/models/Mountain';
+import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
 
 const mapSize = 8;
 // DEEP_WATER = 1
@@ -132,6 +133,29 @@ test('removeCommonTiles', () => {
   common = Utils.removeCommonTiles(tileArray1, tileArray3);
   expect(common.length).toBe(0);
 });
+test('detectNeighborhood', () => {
+  const tile1 = {q:1,r:1,s:-2} as Tile;
+  const tile2 = {q:2,r:0,s:-2} as Tile;
+  const tile3 = {q:2,r:1,s:-3} as Tile;
+  const tile4 = {q:1,r:2,s:-3} as Tile;
+  const tile5 = {q:0,r:2,s:-2} as Tile;
+  const tile6 = {q:0,r:1,s:-1} as Tile;
+  const tile7 = {q:1,r:0,s:-1} as Tile;
+  let direction = Utils.detectNeighborhood(tile2, tile6);
+  expect(direction).toBeUndefined();
+  direction = Utils.detectNeighborhood(tile1, tile2);
+  expect(direction).toBe(Direction.NE);
+  direction = Utils.detectNeighborhood(tile1, tile3);
+  expect(direction).toBe(Direction.E);
+  direction = Utils.detectNeighborhood(tile1, tile4);
+  expect(direction).toBe(Direction.SE);
+  direction = Utils.detectNeighborhood(tile1, tile5);
+  expect(direction).toBe(Direction.SW);
+  direction = Utils.detectNeighborhood(tile1, tile6);
+  expect(direction).toBe(Direction.W);
+  direction = Utils.detectNeighborhood(tile1, tile7);
+  expect(direction).toBe(Direction.NW);
+});
 test('distanceToWater', () => {
   const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
   grid.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
@@ -169,4 +193,23 @@ test('createRiverPath', () => {
   const mountain2 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
   path = Utils.createRiverPath(grid2, mountain2);
   expect(path.length).toBeGreaterThanOrEqual(2);
+});
+test('generateRiverTileDirections', () => {
+  const tile1 = {q:0,r:0,s:0} as Tile;
+  tile1.coordinates = {q:0,r:0,s:0};
+  const tile2 = {q:1,r:0,s:-1} as Tile;
+  tile2.coordinates = {q:1,r:0,s:-1};
+  const tile3 = {q:0,r:1,s:-1} as Tile;
+  tile3.coordinates = {q:0,r:1,s:-1};
+  const tile4 = {q:1,r:1,s:-2} as Tile;
+  tile4.coordinates = {q:1,r:1,s:-2};
+  const river: Tile[] = [tile1, tile2, tile3, tile4];
+  const directionMap = Utils.generateRiverTileDirections(river);
+  let directions = directionMap.get(GlobalUtils.coordinateToKey(tile1));
+  expect(directions?.length).toBe(1);
+  expect(directions![0]).toBe(Direction.E);
+  directions = directionMap.get(GlobalUtils.coordinateToKey(tile3));
+  expect(directions?.length).toBe(2);
+  expect(directions![0]).toBe(Direction.NE);
+  expect(directions![1]).toBe(Direction.E);
 });

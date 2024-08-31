@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@kayahr/tiled": "^0.0.1",
+    "@ziagl/tiled-map-utils": "^0.0.4",
     "honeycomb-grid": "^4.1.5"
   }
 }

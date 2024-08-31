@@ -8,6 +8,7 @@ import { MapTemperature } from './enums/MapTemperature';
 import { TileDistribution } from './models/TileDistribution';
 import { Mountain } from './models/Mountain';
 import { WaterFlowType } from './enums/WaterFlowType';
+import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
 
 export class Utils {
   public static readonly MAXLOOPS = 10000;
@@ -766,18 +767,53 @@ export class Utils {
   }
 
   // generates a map of coordinates and infos which river tiles should be added (NE, E, SE, SW, W, NW)
-  public static generateRiverTileDirections(grid: Grid<Tile>, riverTiles: Tile[]) {
-    // pre compute neighbors for all river tiles
-    const riverTileNeighbors: Tile[][] = [];
-    riverTiles.forEach((tile) => {
-      riverTileNeighbors.push(Utils.neighbors(grid, { q:tile.q, r:tile.r, s:tile.s }));
-    });
-    // create empty map
+  public static generateRiverTileDirections(riverTiles: Tile[]):Map<string, Direction[]> {
+    // create empty dictionary
+    let riverDirections = new Map<string, Direction[]>();
+    for(let i = 0; i < riverTiles.length;  ++i) {
+      let neighborDirections: Direction[] = [];
+      let skipEven = false;
+      if(i%2 == 0) {
+        skipEven = true;
+      }
+      for(let j = 0; j < riverTiles.length; ++j) {
+        if((skipEven && j%2 == 0) || (!skipEven && j%2 != 0)) {
+          continue;
+        }
+        const direction = this.detectNeighborhood(riverTiles[i] as Tile, riverTiles[j] as Tile);
+        if(direction != undefined) {
+          neighborDirections.push(direction);
+        }
+      }
+      const key = GlobalUtils.coordinateToKey(riverTiles[i]?.coordinates!);
+      riverDirections.set(key, neighborDirections);
+    }
+    return riverDirections;
   }
 
   // detects if two tiles are neighbors and returns the direction from target point of view, undefined if not a neighbor
-  public static detectNeighborhood(source: Tile, sourceNeighbors: Tile[], target: Tile, targetNeighbors: Tile[]): Direction | undefined {
-    
+  public static detectNeighborhood(source: Tile, target: Tile): Direction | undefined {
+    const q = target.q - source.q;
+    const r = target.r - source.r;
+    const s = target.s - source.s;
+    if(q === 1 && r === -1 && s === 0) {
+      return Direction.NE;
+    }
+    if(q === 1 && r === 0 && s === -1) {
+      return Direction.E;
+    }
+    if(q === 0 && r === 1 && s === -1) {
+      return Direction.SE;
+    }
+    if(q === -1 && r === 1 && s === 0) {
+      return Direction.SW;
+    }
+    if(q === -1 && r === 0 && s === 1) {
+      return Direction.W;
+    }
+    if(q === 0 && r === -1 && s === 1) {
+      return Direction.NW;
+    }
     return undefined;
   }
 }
