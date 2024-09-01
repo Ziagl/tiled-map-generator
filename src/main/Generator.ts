@@ -27,7 +27,7 @@ export class Generator {
   private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
-  private _mapRiverTileDirections: Map<string, Direction[]>[] = []; // river tile directions
+  private _mapRiverTileDirections: Map<string, Direction[]> = null!; // river tile directions
 
   constructor() {
     this._map = [];
@@ -116,7 +116,7 @@ export class Generator {
     return [this._map[MapLayer.RIVERS]!.flat(), this._map_x, this._map_y];
   }
 
-  public exportRiverTileDirections(): Map<string, Direction[]>[] {
+  public exportRiverTileDirections(): Map<string, Direction[]> {
     return this._mapRiverTileDirections;
   }
 

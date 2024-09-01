@@ -34,7 +34,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     terrain: number[][];
     landscape: number[][];
     rivers: number[][];
-    riverTileDirections: Map<string, Direction[]>[];
+    riverTileDirections: Map<string, Direction[]>;
   } {
     // create empty grid
     const grid = new Grid(Tile, rectangle({ width: this.columns, height: this.rows }));
@@ -197,8 +197,10 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
-    const riverTileDirections: Map<string, Direction[]>[] = [];
-    generatedRivers.forEach((river) => riverTileDirections.push(Utils.generateRiverTileDirections(river)));
+    const riverTileDirections = new Map<string, Direction[]>();
+    generatedRivers.forEach((river) =>
+      Utils.generateRiverTileDirections(river).forEach((value, key) => riverTileDirections.set(key, value)),
+    );
     return { terrain, landscape, rivers, riverTileDirections };
   }
 
