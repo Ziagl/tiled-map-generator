@@ -1,4 +1,4 @@
-import { Grid, rectangle } from 'honeycomb-grid';
+import { Direction, Grid, rectangle } from 'honeycomb-grid';
 import { MapHumidity } from '../enums/MapHumidity';
 import { MapTemperature } from '../enums/MapTemperature';
 import { Tile } from '../models/Tile';
@@ -27,7 +27,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     this.columns = columns;
   }
 
-  generate(map: number[][]): number[][][] {
+  generate(map: number[][]): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]} {
     // create empty grid
     const grid = new Grid(Tile, rectangle({ width: this.columns, height: this.rows }));
 
@@ -52,7 +52,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const riverCount = Math.floor(factorRiver * this.size);
 
     // generate rivers
-    this.computeRivers(grid, riverCount);
+    const generatedRivers = this.computeRivers(grid, riverCount);
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -190,12 +190,15 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
-    //const riverTileDirections = Utils.generateRiverTileDirections(grid, rivers);
-    return [terrain, landscape, rivers];
+    const riverTileDirections: Map<string, Direction[]>[] = [];
+    generatedRivers.forEach((river) => 
+      riverTileDirections.push(Utils.generateRiverTileDirections(river))
+    );
+    return {terrain, landscape, rivers, riverTileDirections};
   }
 
-  // compute given number of rivers on given grid
-  private computeRivers(grid: Grid<Tile>, rivers: number): void {
+  // compute given number of rivers on given grid and returns them
+  private computeRivers(grid: Grid<Tile>, rivers: number): Tile[][] {
     // create a list of mountains
     let mountains: Mountain[] = [];
     for (let y = 0; y < this.rows; ++y) {
@@ -238,6 +241,6 @@ export class DefaultShaper implements IMapLandscapeShaper {
         mountains.sort((a, b) => (b.distanceToWater + b.distanceToRiver) - (a.distanceToWater + a.distanceToRiver));
       }
     }
-    console.log("Generated rivers: " + generatedRivers.length);
+    return generatedRivers;
   }
 }

@@ -687,19 +687,23 @@ export class Utils {
           otherRiverBank.push(localSharedTiles[Utils.randomNumber(0, 1)] as Tile);
         }
       }
-      // for all other tiles in riverPath
-      for(let i = 1; i < riverPath.length; i++) {
-        let otherRiverBankNeighbors = Utils.neighbors(grid, { q:otherRiverBank[otherRiverBank.length - 1]!.q, r:otherRiverBank[otherRiverBank.length - 1]!.r, s:otherRiverBank[otherRiverBank.length - 1]!.s });
-        // filter out all river tiles
-        otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
-        let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
-        // filter out all neighbor tiles that are part of river
-        sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
-        if(sharedTiles.length == 1) {
-          otherRiverBank.push(sharedTiles[0] as Tile);
-        } else {
-          // a curve in the river may cause this, so we add last added tile again (to match pairs)
-          otherRiverBank.push(otherRiverBank[otherRiverBank.length - 1] as Tile);
+      if(otherRiverBank.length === 0) {
+        console.log("Error: special case for otherRiverBank is empty.");
+      } else {
+        // for all other tiles in riverPath
+        for(let i = 1; i < riverPath.length; ++i) {
+          let otherRiverBankNeighbors = Utils.neighbors(grid, { q:otherRiverBank[otherRiverBank.length - 1]!.q, r:otherRiverBank[otherRiverBank.length - 1]!.r, s:otherRiverBank[otherRiverBank.length - 1]!.s });
+          // filter out all river tiles
+          otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
+          let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
+          // filter out all neighbor tiles that are part of river
+          sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
+          if(sharedTiles.length == 1) {
+            otherRiverBank.push(sharedTiles[0] as Tile);
+          } else {
+            // a curve in the river may cause this, so we add last added tile again (to match pairs)
+            otherRiverBank.push(otherRiverBank[otherRiverBank.length - 1] as Tile);
+          }
         }
       }
     }

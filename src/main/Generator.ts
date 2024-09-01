@@ -17,6 +17,7 @@ import { Utils } from './Utils';
 import { IMapLandscapeShaper } from './interfaces/IMapLandscapeShaper';
 import { IMapTerrainGenerator } from './interfaces/IMapTerrainGenerator';
 import { DefaultShaper } from './shapers/DefaultShaper';
+import { Direction } from 'honeycomb-grid';
 
 // this generator class loads a specific generator (of MapType type)
 // and generates a map with specific ruleset and exports its data
@@ -26,6 +27,7 @@ export class Generator {
   private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
+  private _mapRiverTileDirections: Map<string, Direction[]>[] = []; // river tile directions
 
   constructor() {
     this._map = [];
@@ -75,7 +77,9 @@ export class Generator {
     const [rows, columns] = Utils.convertMapSize(size);
     shaper = new DefaultShaper(temperature, humidity, size, rows, columns);
 
-    this._map = shaper.generate(generator.generate(size));
+    const mapData = shaper.generate(generator.generate(size));
+    this._map = [mapData.terrain, mapData.landscape, mapData.rivers];
+    this._mapRiverTileDirections = mapData.riverTileDirections;
     this._map_x = generator.rows;
     this._map_y = generator.columns;
   }
@@ -101,6 +105,10 @@ export class Generator {
 
   public exportRiverMap(): [number[], number, number] {
     return [this._map[MapLayer.RIVERS]!.flat(), this._map_x, this._map_y];
+  }
+
+  public exportRiverTileDirections(): Map<string, Direction[]>[] {
+    return this._mapRiverTileDirections;
   }
 
   /**
