@@ -7,7 +7,7 @@ import { MapType } from '../main/enums/MapType';
 test('RandomGenerator', () => {
   const gen = new Generator();
   //@ts-ignore
-  gen.generateMap(-1, MapSize.TINY, MapTemperature.HOT, MapHumidity.DRY);
+  gen.generateMap(-1, MapSize.TINY, MapTemperature.HOT, MapHumidity.DRY, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
   expect(gen.print.length).not.toBeGreaterThan(0);
@@ -19,55 +19,55 @@ test('RandomGenerator', () => {
 });
 test('Archipelago', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.ARCHIPELAGO, MapSize.TINY, MapTemperature.COLD, MapHumidity.WET);
+  gen.generateMap(MapType.ARCHIPELAGO, MapSize.TINY, MapTemperature.COLD, MapHumidity.WET, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('Continents', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS, MapSize.SMALL, MapTemperature.HOT, MapHumidity.DRY);
+  gen.generateMap(MapType.CONTINENTS, MapSize.SMALL, MapTemperature.HOT, MapHumidity.DRY, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('ContinentsIslands', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('Highland', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.HIGHLAND, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.HIGHLAND, MapSize.SMALL, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('InlandSea', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.INLAND_SEA, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.INLAND_SEA, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('Islands', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.ISLANDS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.ISLANDS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('Lakes', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.LAKES, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.LAKES, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('SmallContinents', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.SMALL_CONTINENTS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.SMALL_CONTINENTS, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });
 test('SuperContinent', () => {
   const gen = new Generator();
-  gen.generateMap(MapType.SUPER_CONTINENT, MapSize.TINY, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.SUPER_CONTINENT, MapSize.MEDIUM, MapTemperature.NORMAL, MapHumidity.NORMAL, 2.0);
   const [map, rows, columns] = gen.exportTerrainMap();
   expect(map.length).toEqual(rows * columns);
 });

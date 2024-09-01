@@ -37,8 +37,11 @@ export class Generator {
    * generate a map of given type and size
    * @param type type of map
    * @param size size of map
+   * @param temperature temperature of map
+   * @param humidity humidity of map
+   * @param factorRiver factor of rivers to create (factor * Map.Size)
    */
-  public generateMap(type: MapType, size: MapSize, temperature: MapTemperature, humidity: MapHumidity) {
+  public generateMap(type: MapType, size: MapSize, temperature: MapTemperature, humidity: MapHumidity, factorRiver: number) {
     let generator: IMapTerrainGenerator;
     let shaper: IMapLandscapeShaper;
 
@@ -77,7 +80,7 @@ export class Generator {
     const [rows, columns] = Utils.convertMapSize(size);
     shaper = new DefaultShaper(temperature, humidity, size, rows, columns);
 
-    const mapData = shaper.generate(generator.generate(size));
+    const mapData = shaper.generate(generator.generate(size), factorRiver);
     this._map = [mapData.terrain, mapData.landscape, mapData.rivers];
     this._mapRiverTileDirections = mapData.riverTileDirections;
     this._map_x = generator.rows;

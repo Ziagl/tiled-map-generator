@@ -9,5 +9,5 @@ export interface IMapLandscapeShaper {
   readonly rows: number;
   readonly columns: number;
 
-  generate(map: number[][]): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]};
+  generate(map: number[][], factorRiver: number): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]};
 }

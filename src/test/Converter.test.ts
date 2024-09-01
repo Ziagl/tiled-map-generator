@@ -8,7 +8,7 @@ import * as fs from 'fs';
 
 test('convertToTiled', () => {
   let gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
   const data =
@@ -18,7 +18,7 @@ test('convertToTiled', () => {
 });
 test('generateTiledJson', () => {
   let gen = new Generator();
-  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.CONTINENTS_ISLANDS, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
   const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, '#ffffff');
@@ -27,7 +27,7 @@ test('generateTiledJson', () => {
 test('generateTiledFile', () => {
   let gen = new Generator();
   //@ts-ignore
-  gen.generateMap(MapType.SUPER_CONTINENT, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL);
+  gen.generateMap(MapType.SUPER_CONTINENT, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
   const result = converter.generateTiledJson(map, rows, columns, 'tileset.png', 32, 34, 416, 34, 13, 13, '#ffffff');

@@ -27,7 +27,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     this.columns = columns;
   }
 
-  generate(map: number[][]): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]} {
+  generate(map: number[][], factorRiver: number): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]} {
     // create empty grid
     const grid = new Grid(Tile, rectangle({ width: this.columns, height: this.rows }));
 
@@ -46,7 +46,6 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorOasis = 0.05;
     const factorSwamp = 0.05;
     const factorWood = 0.3;
-    const factorRiver = 1.5;
     
     // how many rivers should we create? depending on map size
     const riverCount = Math.floor(factorRiver * this.size);

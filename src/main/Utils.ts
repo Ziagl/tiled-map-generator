@@ -710,6 +710,7 @@ export class Utils {
     // merge computed river and otherRiverBank
     if(riverPath.length != otherRiverBank.length) {
       console.log("Error: riverPath "+riverPath.length+" and otherRiverBank "+otherRiverBank.length+" have different lengths.");
+      return [];
     }
     let returnRiverPath: Tile[] = [];
     for(let i = 0; i < riverPath.length; i++) {
