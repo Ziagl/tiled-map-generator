@@ -24,11 +24,12 @@ import { Direction } from 'honeycomb-grid';
 // print methods are useful for debug purposes
 export class Generator {
   private readonly _layers: string[] = ['terrain', 'landscape', 'river']; // layers of map
+  private readonly _riverbed: number = 3;
   private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
   private _mapRiverTileDirections: Map<string, Direction[]> = null!; // river tile directions
-
+  
   constructor() {
     this._map = [];
   }
@@ -86,7 +87,7 @@ export class Generator {
     const [rows, columns] = Utils.convertMapSize(size);
     shaper = new DefaultShaper(temperature, humidity, size, rows, columns);
 
-    const mapData = shaper.generate(generator.generate(size), factorRiver);
+    const mapData = shaper.generate(generator.generate(size), factorRiver, this._riverbed);
     this._map = [mapData.terrain, mapData.landscape, mapData.rivers];
     this._mapRiverTileDirections = mapData.riverTileDirections;
     this._map_x = generator.rows;

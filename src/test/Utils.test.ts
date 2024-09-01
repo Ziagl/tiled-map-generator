@@ -13,18 +13,36 @@ const mapSize = 8;
 // DESERT = 3
 // MOUNTAIN = 13
 const exampleMapEasy: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 13, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3,
-  2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 13, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  1, 1, 1, 1, 1, 1, 1, 1,
 ];
 const mountainCoordinateEasy = { col: 2, row: 2 };
 const exampleMapMedium: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 13, 3, 3,
-  3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3,
+  1, 1, 1, 1, 1, 1, 1, 1, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 1, 
+  2, 3, 3, 3, 13, 3, 3, 1, 
+  2, 3, 3, 3, 3, 3, 3, 1, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  1, 1, 1, 1, 1, 2, 1, 2,
 ];
 const mountainCoordinateMedium = { col: 4, row: 4 };
 const exampleMapAdvanced: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 13, 13, 3,
-  13, 2, 3, 3, 3, 3, 3, 3, 13, 2, 3, 3, 3, 13, 3, 3, 13, 1, 1, 1, 1, 3, 3, 3, 3,
+  1, 1, 1, 1, 1, 1, 1, 1, 
+  2, 3, 3, 3, 3, 3, 3, 2,
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 3, 3, 3, 2, 
+  2, 3, 3, 3, 13, 13, 3, 13,
+  2, 3, 3, 3, 3, 3, 3, 13, 
+  2, 3, 3, 3, 13, 3, 3, 13,
+  1, 1, 1, 1, 3, 2, 1, 1,
 ];
 
 test('tileDistributionClass', () => {
@@ -175,21 +193,28 @@ test('distanceToWater', () => {
   expect(distance).toBe(0);
 });
 test('createRiverPath', () => {
+  // easy
   const grid = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   let index = 0;
   grid.forEach((tile) => {
     tile.terrain = exampleMapEasy[index++] as TerrainType;
   });
-  const mountain = new Mountain(mountainCoordinateEasy.col, mountainCoordinateEasy.row);
-  let path = Utils.createRiverPath(grid, mountain);
+  let mountain = new Mountain(mountainCoordinateEasy.col, mountainCoordinateEasy.row);
+  let distanceToWater = Utils.distanceToWater(grid, mountain.pos_x, mountain.pos_y, mapSize, mapSize);
+  expect(distanceToWater).toBeGreaterThan(0);
+  let path = Utils.createRiverPath(grid, mountain, distanceToWater);
   expect(path.length).toBeGreaterThanOrEqual(0);
+  // medium
   const grid1 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   index = 0;
   grid1.forEach((tile) => {
     tile.terrain = exampleMapMedium[index++] as TerrainType;
   });
   const mountain1 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
-  path = Utils.createRiverPath(grid1, mountain1);
+  distanceToWater = Utils.distanceToWater(grid1, mountain.pos_x, mountain.pos_y, mapSize, mapSize);
+  expect(distanceToWater).toBeGreaterThan(0);
+  path = Utils.createRiverPath(grid1, mountain1, distanceToWater + 5);
+  // advanced
   expect(path.length).toBeGreaterThanOrEqual(2);
   const grid2 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   index = 0;
@@ -197,7 +222,9 @@ test('createRiverPath', () => {
     tile.terrain = exampleMapAdvanced[index++] as TerrainType;
   });
   const mountain2 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
-  path = Utils.createRiverPath(grid2, mountain2);
+  distanceToWater = Utils.distanceToWater(grid2, mountain.pos_x, mountain.pos_y, mapSize, mapSize);
+  expect(distanceToWater).toBeGreaterThan(0);
+  path = Utils.createRiverPath(grid2, mountain2, distanceToWater + 5);
   expect(path.length).toBeGreaterThanOrEqual(2);
 });
 test('generateRiverTileDirections', () => {

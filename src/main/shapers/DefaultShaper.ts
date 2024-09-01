@@ -30,6 +30,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
   generate(
     map: number[][],
     factorRiver: number,
+    riverbed: number
   ): {
     terrain: number[][];
     landscape: number[][];
@@ -59,7 +60,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const riverCount = Math.floor(factorRiver * this.size);
 
     // generate rivers
-    const generatedRivers = this.computeRivers(grid, riverCount);
+    const generatedRivers = this.computeRivers(grid, riverCount, riverbed);
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -199,13 +200,16 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
     const riverTileDirections = new Map<string, Direction[]>();
     generatedRivers.forEach((river) =>
-      Utils.generateRiverTileDirections(river).forEach((value, key) => riverTileDirections.set(key, value)),
+      Utils.generateRiverTileDirections(river).forEach((value, key) => {
+        console.log("set "+key+" value length "+value.length);
+        riverTileDirections.set(key, value);}),
     );
     return { terrain, landscape, rivers, riverTileDirections };
   }
 
-  // compute given number of rivers on given grid and returns them
-  private computeRivers(grid: Grid<Tile>, rivers: number): Tile[][] {
+  // compute given number of rivers on given grid and returns them, riverbed defines range around
+  // river no other river can be added to map
+  private computeRivers(grid: Grid<Tile>, rivers: number, riverbed: number): Tile[][] {
     // create a list of mountains
     let mountains: Mountain[] = [];
     for (let y = 0; y < this.rows; ++y) {
@@ -219,41 +223,36 @@ export class DefaultShaper implements IMapLandscapeShaper {
     mountains.forEach((mountain) => {
       mountain.distanceToWater = Utils.distanceToWater(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
     });
-    // sort mountains descending by distance to water
-    mountains.sort((a, b) => a.distanceToWater - b.distanceToWater);
-    // create given amount of rivers
     let generatedRivers: Tile[][] = [];
-    for (let i = 0; i < rivers; ++i) {
-      const mountain = mountains[mountains.length - 1];
-      let maxTry = 10;
-      let riverPath: Tile[] = [];
-      // try maxTry times to get a random river from this mountain
-      do {
-        riverPath = Utils.createRiverPath(grid, mountain!);
-        --maxTry;
-      } while (maxTry > 0 && riverPath.length === 0);
-      if (riverPath.length > 0) {
-        // mark all river tiles on the grid
-        riverPath.forEach((tile) => {
-          tile.river = WaterFlowType.RIVER;
-        });
-        // add river to list of rivers
-        generatedRivers.push(riverPath);
-        // compute distance to next river
-        mountains.forEach((mountain) => {
-          mountain.distanceToRiver = Utils.distanceToRiver(
-            grid,
-            mountain.pos_x,
-            mountain.pos_y,
-            this.rows,
-            this.columns,
-          );
-        });
-        // sort list of mountains
-        mountains.sort((a, b) => b.distanceToWater + b.distanceToRiver - (a.distanceToWater + a.distanceToRiver));
+    let maxTry = 30;
+    do{
+      const mountainIndex = Utils.randomNumber(0, mountains.length - 1);
+      const mountain = mountains[mountainIndex] as Mountain;
+      // check if mountain position is possible
+      if ((grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile).river == WaterFlowType.NONE) {
+        let riverPath = Utils.createRiverPath(grid, mountain, mountain.distanceToWater + 2);
+        if (riverPath.length > 0) {
+          // mark all river tiles on the grid
+          riverPath.forEach((tile) => {
+            tile.river = WaterFlowType.RIVER;
+          });
+          // add river to list of rivers
+          generatedRivers.push(riverPath);
+          // mark all close to river tiles
+          grid.forEach((tile) => {
+            if(tile.river == WaterFlowType.NONE) {
+              // compute distance to river
+              const distance = Utils.distanceToRiver(grid, tile.x, tile.y, 0, 0);
+              if(distance > 0 && distance <= riverbed){
+                tile.river = WaterFlowType.RIVERBED;
+              }
+            }
+          });
+        }
       }
-      mountains.pop();
-    }
+      mountains.splice(mountainIndex, 1);
+      --maxTry;
+    }while(rivers > generatedRivers.length && maxTry > 0 && mountains.length > 0);
     return generatedRivers;
   }
 }
