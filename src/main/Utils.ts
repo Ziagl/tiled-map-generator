@@ -562,15 +562,15 @@ export class Utils {
   }
 
   // computes the distance to next water tile
-  public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows:number, columns:number):number {
+  public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
     let distance = 0;
     let radius = 1;
     const maxRadius = Math.max(rows, columns);
-    do{
+    do {
       const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
       const tiles = grid.traverse(radiusRing);
       tiles.forEach((tile) => {
-        if(tile.terrain === TerrainType.SHALLOW_WATER || tile.terrain === TerrainType.DEEP_WATER){
+        if (tile.terrain === TerrainType.SHALLOW_WATER || tile.terrain === TerrainType.DEEP_WATER) {
           distance = radius;
         }
       });
@@ -580,15 +580,15 @@ export class Utils {
   }
 
   // computes the distance to next river tile
-  public static distanceToRiver(grid: Grid<Tile>, x: number, y: number, rows:number, columns:number):number {
+  public static distanceToRiver(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
     let distance = 0;
     let radius = 1;
     const maxRadius = Math.max(rows, columns);
-    do{
+    do {
       const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
       const tiles = grid.traverse(radiusRing);
       tiles.forEach((tile) => {
-        if(tile.river === WaterFlowType.RIVER){
+        if (tile.river === WaterFlowType.RIVER) {
           distance = radius;
         }
       });
@@ -604,45 +604,52 @@ export class Utils {
     let riverPath: Tile[] = [];
     let loopMax = Utils.MAXLOOPS;
     const mountainTile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
-    let nextTile:Tile = mountainTile;
+    let nextTile: Tile = mountainTile;
     let success = false;
     let lastDistance = 0;
-    do{
+    do {
       // add current open list to closed list
-      if(openList.length > 0){
+      if (openList.length > 0) {
         closedList.push(openList);
         openList = [];
       }
       // get neighbors and add neighbors to open list
       let neighbors = Utils.neighbors(grid, { q: nextTile.q, r: nextTile.r, s: nextTile.s });
       neighbors.forEach((neighbor) => {
-        if(success === false) {
-          if(neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER){
+        if (success === false) {
+          if (neighbor.terrain === TerrainType.SHALLOW_WATER || neighbor.terrain === TerrainType.DEEP_WATER) {
             // found water tile -> clear open list
             openList = [];
             success = true;
-          }
-          else if(neighbor.terrain != TerrainType.MOUNTAIN){
+          } else if (neighbor.terrain != TerrainType.MOUNTAIN) {
             // if it is not a mountain tile and not already in closed list
-            if(!closedList.some((list) => list.includes(neighbor))){
+            if (!closedList.some((list) => list.includes(neighbor))) {
               openList.push(neighbor);
             }
           }
         }
       });
       // select next tile
-      if(openList.length > 0 && success === false){
+      if (openList.length > 0 && success === false) {
         let possibleTiles: Tile[] = [];
-        for(let i = 0; i < openList.length; i++) {
-          const distanceToMountain = (Math.abs(mountainTile.q - openList[i]!.q) + Math.abs(mountainTile.r - openList[i]!.r) + Math.abs(mountainTile.s - openList[i]!.s)) / 2;
-          if(distanceToMountain > lastDistance){
+        for (let i = 0; i < openList.length; i++) {
+          const distanceToMountain =
+            (Math.abs(mountainTile.q - openList[i]!.q) +
+              Math.abs(mountainTile.r - openList[i]!.r) +
+              Math.abs(mountainTile.s - openList[i]!.s)) /
+            2;
+          if (distanceToMountain > lastDistance) {
             possibleTiles.push(openList[i]!);
           }
         }
-        if(possibleTiles.length > 0){
+        if (possibleTiles.length > 0) {
           // option 1: random tile
           nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
-          lastDistance = (Math.abs(mountainTile.q - nextTile.q) + Math.abs(mountainTile.r - nextTile.r) + Math.abs(mountainTile.s - nextTile.s)) / 2;
+          lastDistance =
+            (Math.abs(mountainTile.q - nextTile.q) +
+              Math.abs(mountainTile.r - nextTile.r) +
+              Math.abs(mountainTile.s - nextTile.s)) /
+            2;
           // option 2: sort by distanceToMountain first
           // TODO?
           riverPath.push(nextTile);
@@ -652,53 +659,61 @@ export class Utils {
         }
       }
       --loopMax;
-    }while(loopMax > 0 && openList.length > 0);
+    } while (loopMax > 0 && openList.length > 0);
     // early exit
-    if(success == false || riverPath.length === 0) {
+    if (success == false || riverPath.length === 0) {
       return [];
     }
     // so there is now a path of single tiles, append it for a second tile
     const riverTileNeighbors: Tile[][] = [];
-    const mountainTileNeighbors = Utils.neighbors(grid, { q:mountainTile.q, r:mountainTile.r, s:mountainTile.s });
+    const mountainTileNeighbors = Utils.neighbors(grid, { q: mountainTile.q, r: mountainTile.r, s: mountainTile.s });
     riverPath.forEach((tile) => {
-      riverTileNeighbors.push(Utils.neighbors(grid, { q:tile.q, r:tile.r, s:tile.s }));
+      riverTileNeighbors.push(Utils.neighbors(grid, { q: tile.q, r: tile.r, s: tile.s }));
     });
     let otherRiverBank: Tile[] = [];
-    if(riverPath.length === 1) {
+    if (riverPath.length === 1) {
       // special case if river only contains 1 tile, add a random neighbor tile
       const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
-      if(sharedTiles.length !== 2) {
-        console.log("Error: special case for 1 tile river failed.");
+      if (sharedTiles.length !== 2) {
+        console.log('Error: special case for 1 tile river failed.');
       } else {
         // randomly choose one of two neighbors
         otherRiverBank.push(sharedTiles[Utils.randomNumber(0, 1)] as Tile);
       }
     } else {
       // default case get shared tile of mountain neighbors and neighbors of both first river tiles
-      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[], riverTileNeighbors[1] as Tile[]]);
-      if(sharedTiles.length == 1) {
+      const sharedTiles = Utils.findCommonTiles([
+        mountainTileNeighbors,
+        riverTileNeighbors[0] as Tile[],
+        riverTileNeighbors[1] as Tile[],
+      ]);
+      if (sharedTiles.length == 1) {
         otherRiverBank.push(sharedTiles[0] as Tile);
       } else {
         const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
-        if(localSharedTiles.length !== 2) {
-          console.log("Error: special case for first tile of river failed.");
+        if (localSharedTiles.length !== 2) {
+          console.log('Error: special case for first tile of river failed.');
         } else {
           // randomly choose one of two neighbors
           otherRiverBank.push(localSharedTiles[Utils.randomNumber(0, 1)] as Tile);
         }
       }
-      if(otherRiverBank.length === 0) {
-        console.log("Error: special case for otherRiverBank is empty.");
+      if (otherRiverBank.length === 0) {
+        console.log('Error: special case for otherRiverBank is empty.');
       } else {
         // for all other tiles in riverPath
-        for(let i = 1; i < riverPath.length; ++i) {
-          let otherRiverBankNeighbors = Utils.neighbors(grid, { q:otherRiverBank[otherRiverBank.length - 1]!.q, r:otherRiverBank[otherRiverBank.length - 1]!.r, s:otherRiverBank[otherRiverBank.length - 1]!.s });
+        for (let i = 1; i < riverPath.length; ++i) {
+          let otherRiverBankNeighbors = Utils.neighbors(grid, {
+            q: otherRiverBank[otherRiverBank.length - 1]!.q,
+            r: otherRiverBank[otherRiverBank.length - 1]!.r,
+            s: otherRiverBank[otherRiverBank.length - 1]!.s,
+          });
           // filter out all river tiles
           otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
           let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
           // filter out all neighbor tiles that are part of river
           sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
-          if(sharedTiles.length == 1) {
+          if (sharedTiles.length == 1) {
             otherRiverBank.push(sharedTiles[0] as Tile);
           } else {
             // a curve in the river may cause this, so we add last added tile again (to match pairs)
@@ -708,12 +723,18 @@ export class Utils {
       }
     }
     // merge computed river and otherRiverBank
-    if(riverPath.length != otherRiverBank.length) {
-      console.log("Error: riverPath "+riverPath.length+" and otherRiverBank "+otherRiverBank.length+" have different lengths.");
+    if (riverPath.length != otherRiverBank.length) {
+      console.log(
+        'Error: riverPath ' +
+          riverPath.length +
+          ' and otherRiverBank ' +
+          otherRiverBank.length +
+          ' have different lengths.',
+      );
       return [];
     }
     let returnRiverPath: Tile[] = [];
-    for(let i = 0; i < riverPath.length; i++) {
+    for (let i = 0; i < riverPath.length; i++) {
       returnRiverPath.push(riverPath[i] as Tile);
       returnRiverPath.push(otherRiverBank[i] as Tile);
     }
@@ -724,9 +745,7 @@ export class Utils {
   public static removeCommonTiles(array1: Tile[], array2: Tile[]): Tile[] {
     // custom compare function for tiles
     const tilesEqual = (t1: Tile, t2: Tile) => t1.q === t2.q && t1.r === t2.r;
-    return array1.filter(tile1 => 
-      !array2.some(tile2 => tilesEqual(tile1, tile2))
-    );
+    return array1.filter((tile1) => !array2.some((tile2) => tilesEqual(tile1, tile2)));
   }
 
   // returns all elements that are in every given array
@@ -738,8 +757,8 @@ export class Utils {
     // find longest array
     let indexOflongestArray = 0;
     let longestArraySize = 0;
-    for(let i = 0; i < arrays.length; i++) {
-      if(arrays[i]!.length > longestArraySize) {
+    for (let i = 0; i < arrays.length; i++) {
+      if (arrays[i]!.length > longestArraySize) {
         indexOflongestArray = i;
         longestArraySize = arrays[i]!.length;
       }
@@ -749,22 +768,22 @@ export class Utils {
     let indexToRemove: number[] = [];
     for (let j = 0; j < computeArray!.length; j++) {
       for (let i = 0; i < arrays.length; i++) {
-        if(i === indexOflongestArray) {
+        if (i === indexOflongestArray) {
           continue;
         }
         let found = false;
         if (arrays[i]!.some((tile) => tilesEqual(computeArray[j] as Tile, tile))) {
           found = true;
         }
-        if(found == false) {
+        if (found == false) {
           indexToRemove.push(j);
           break;
         }
       }
     }
     let returnArray: Tile[] = [];
-    for(let i = 0; i < computeArray!.length; i++) {
-      if(!indexToRemove.includes(i)) {
+    for (let i = 0; i < computeArray!.length; i++) {
+      if (!indexToRemove.includes(i)) {
         returnArray.push(computeArray![i] as Tile);
       }
     }
@@ -772,21 +791,21 @@ export class Utils {
   }
 
   // generates a map of coordinates and infos which river tiles should be added (NE, E, SE, SW, W, NW)
-  public static generateRiverTileDirections(riverTiles: Tile[]):Map<string, Direction[]> {
+  public static generateRiverTileDirections(riverTiles: Tile[]): Map<string, Direction[]> {
     // create empty dictionary
     let riverDirections = new Map<string, Direction[]>();
-    for(let i = 0; i < riverTiles.length;  ++i) {
+    for (let i = 0; i < riverTiles.length; ++i) {
       let neighborDirections: Direction[] = [];
       let skipEven = false;
-      if(i%2 == 0) {
+      if (i % 2 == 0) {
         skipEven = true;
       }
-      for(let j = 0; j < riverTiles.length; ++j) {
-        if((skipEven && j%2 == 0) || (!skipEven && j%2 != 0)) {
+      for (let j = 0; j < riverTiles.length; ++j) {
+        if ((skipEven && j % 2 == 0) || (!skipEven && j % 2 != 0)) {
           continue;
         }
         const direction = this.detectNeighborhood(riverTiles[i] as Tile, riverTiles[j] as Tile);
-        if(direction != undefined) {
+        if (direction != undefined) {
           neighborDirections.push(direction);
         }
       }
@@ -801,22 +820,22 @@ export class Utils {
     const q = target.q - source.q;
     const r = target.r - source.r;
     const s = target.s - source.s;
-    if(q === 1 && r === -1 && s === 0) {
+    if (q === 1 && r === -1 && s === 0) {
       return Direction.NE;
     }
-    if(q === 1 && r === 0 && s === -1) {
+    if (q === 1 && r === 0 && s === -1) {
       return Direction.E;
     }
-    if(q === 0 && r === 1 && s === -1) {
+    if (q === 0 && r === 1 && s === -1) {
       return Direction.SE;
     }
-    if(q === -1 && r === 1 && s === 0) {
+    if (q === -1 && r === 1 && s === 0) {
       return Direction.SW;
     }
-    if(q === -1 && r === 0 && s === 1) {
+    if (q === -1 && r === 0 && s === 1) {
       return Direction.W;
     }
-    if(q === 0 && r === -1 && s === 1) {
+    if (q === 0 && r === -1 && s === 1) {
       return Direction.NW;
     }
     return undefined;

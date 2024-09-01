@@ -41,7 +41,13 @@ export class Generator {
    * @param humidity humidity of map
    * @param factorRiver factor of rivers to create (factor * Map.Size)
    */
-  public generateMap(type: MapType, size: MapSize, temperature: MapTemperature, humidity: MapHumidity, factorRiver: number) {
+  public generateMap(
+    type: MapType,
+    size: MapSize,
+    temperature: MapTemperature,
+    humidity: MapHumidity,
+    factorRiver: number,
+  ) {
     let generator: IMapTerrainGenerator;
     let shaper: IMapLandscapeShaper;
 

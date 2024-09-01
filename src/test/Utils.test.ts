@@ -12,37 +12,19 @@ const mapSize = 8;
 // SHALLOW_WATER = 2
 // DESERT = 3
 // MOUNTAIN = 13
-const exampleMapEasy:number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 13, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  1, 1, 1, 1, 1, 1, 1, 1,
+const exampleMapEasy: number[] = [
+  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 13, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3,
+  2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1,
 ];
 const mountainCoordinateEasy = { col: 2, row: 2 };
-const exampleMapMedium:number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 3,
-  2, 3, 3, 3, 13, 3, 3, 3,
-  2, 3, 3, 3, 3, 3, 3, 3,
-  2, 3, 3, 3, 3, 3, 3, 3,
-  1, 1, 1, 3, 3, 3, 3, 3,
+const exampleMapMedium: number[] = [
+  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 13, 3, 3,
+  3, 2, 3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 3, 3, 3, 3, 3,
 ];
 const mountainCoordinateMedium = { col: 4, row: 4 };
-const exampleMapAdvanced:number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 13, 13, 3, 13,
-  2, 3, 3, 3, 3, 3, 3, 13,
-  2, 3, 3, 3, 13, 3, 3, 13,
-  1, 1, 1, 1, 3, 3, 3, 3,
+const exampleMapAdvanced: number[] = [
+  1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 13, 13, 3,
+  13, 2, 3, 3, 3, 3, 3, 3, 13, 2, 3, 3, 3, 13, 3, 3, 13, 1, 1, 1, 1, 3, 3, 3, 3,
 ];
 
 test('tileDistributionClass', () => {
@@ -103,12 +85,18 @@ test('findCommonTiles', () => {
   const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
   const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
   const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
-  let tileArray1:Tile[] = [];
-  array1.forEach((tile) => { tileArray1.push(tile); });
-  let tileArray2:Tile[] = [];
-  array2.forEach((tile) => { tileArray2.push(tile); });
-  let tileArray3:Tile[] = [];
-  array3.forEach((tile) => { tileArray3.push(tile); });
+  let tileArray1: Tile[] = [];
+  array1.forEach((tile) => {
+    tileArray1.push(tile);
+  });
+  let tileArray2: Tile[] = [];
+  array2.forEach((tile) => {
+    tileArray2.push(tile);
+  });
+  let tileArray3: Tile[] = [];
+  array3.forEach((tile) => {
+    tileArray3.push(tile);
+  });
   let common = Utils.findCommonTiles([tileArray1, tileArray2]);
   expect(common.length).toBe(2);
   common = Utils.findCommonTiles([tileArray1, tileArray3]);
@@ -120,12 +108,18 @@ test('removeCommonTiles', () => {
   const array1 = new Grid(Tile, rectangle({ width: 2, height: 2 }));
   const array2 = new Grid(Tile, rectangle({ width: 1, height: 5 }));
   const array3 = new Grid(Tile, rectangle({ width: 5, height: 2 }));
-  let tileArray1:Tile[] = [];
-  array1.forEach((tile) => { tileArray1.push(tile); });
-  let tileArray2:Tile[] = [];
-  array2.forEach((tile) => { tileArray2.push(tile); });
-  let tileArray3:Tile[] = [];
-  array3.forEach((tile) => { tileArray3.push(tile); });
+  let tileArray1: Tile[] = [];
+  array1.forEach((tile) => {
+    tileArray1.push(tile);
+  });
+  let tileArray2: Tile[] = [];
+  array2.forEach((tile) => {
+    tileArray2.push(tile);
+  });
+  let tileArray3: Tile[] = [];
+  array3.forEach((tile) => {
+    tileArray3.push(tile);
+  });
   let common = Utils.removeCommonTiles(tileArray1, tileArray2);
   expect(common.length).toBe(2);
   common = Utils.removeCommonTiles(tileArray2, tileArray1);
@@ -134,13 +128,13 @@ test('removeCommonTiles', () => {
   expect(common.length).toBe(0);
 });
 test('detectNeighborhood', () => {
-  const tile1 = {q:1,r:1,s:-2} as Tile;
-  const tile2 = {q:2,r:0,s:-2} as Tile;
-  const tile3 = {q:2,r:1,s:-3} as Tile;
-  const tile4 = {q:1,r:2,s:-3} as Tile;
-  const tile5 = {q:0,r:2,s:-2} as Tile;
-  const tile6 = {q:0,r:1,s:-1} as Tile;
-  const tile7 = {q:1,r:0,s:-1} as Tile;
+  const tile1 = { q: 1, r: 1, s: -2 } as Tile;
+  const tile2 = { q: 2, r: 0, s: -2 } as Tile;
+  const tile3 = { q: 2, r: 1, s: -3 } as Tile;
+  const tile4 = { q: 1, r: 2, s: -3 } as Tile;
+  const tile5 = { q: 0, r: 2, s: -2 } as Tile;
+  const tile6 = { q: 0, r: 1, s: -1 } as Tile;
+  const tile7 = { q: 1, r: 0, s: -1 } as Tile;
   let direction = Utils.detectNeighborhood(tile2, tile6);
   expect(direction).toBeUndefined();
   direction = Utils.detectNeighborhood(tile1, tile2);
@@ -158,51 +152,63 @@ test('detectNeighborhood', () => {
 });
 test('distanceToWater', () => {
   const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
-  grid.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  grid.forEach((tile) => {
+    tile.terrain = TerrainType.DESERT;
+  });
   let tile = grid.getHex({ col: 4, row: 3 }) as Tile;
   tile.terrain = TerrainType.SHALLOW_WATER;
   let distance = Utils.distanceToWater(grid, 4, 4, 10, 10);
   expect(distance).toBe(2);
   const grid1 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
-  grid1.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  grid1.forEach((tile) => {
+    tile.terrain = TerrainType.DESERT;
+  });
   tile = grid1.getHex({ col: 0, row: 0 }) as Tile;
   tile.terrain = TerrainType.SHALLOW_WATER;
   distance = Utils.distanceToWater(grid1, 4, 4, 10, 10);
   expect(distance).toBe(8);
   const grid2 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
-  grid2.forEach((tile) => { tile.terrain = TerrainType.DESERT; });
+  grid2.forEach((tile) => {
+    tile.terrain = TerrainType.DESERT;
+  });
   distance = Utils.distanceToWater(grid2, 4, 4, 10, 10);
   expect(distance).toBe(0);
 });
 test('createRiverPath', () => {
   const grid = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   let index = 0;
-  grid.forEach((tile) => { tile.terrain = exampleMapEasy[index++] as TerrainType; });
+  grid.forEach((tile) => {
+    tile.terrain = exampleMapEasy[index++] as TerrainType;
+  });
   const mountain = new Mountain(mountainCoordinateEasy.col, mountainCoordinateEasy.row);
   let path = Utils.createRiverPath(grid, mountain);
   expect(path.length).toBeGreaterThanOrEqual(0);
   const grid1 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   index = 0;
-  grid1.forEach((tile) => { tile.terrain = exampleMapMedium[index++] as TerrainType; });
+  grid1.forEach((tile) => {
+    tile.terrain = exampleMapMedium[index++] as TerrainType;
+  });
   const mountain1 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
   path = Utils.createRiverPath(grid1, mountain1);
   expect(path.length).toBeGreaterThanOrEqual(2);
   const grid2 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
   index = 0;
-  grid2.forEach((tile) => { tile.terrain = exampleMapAdvanced[index++] as TerrainType; });
+  grid2.forEach((tile) => {
+    tile.terrain = exampleMapAdvanced[index++] as TerrainType;
+  });
   const mountain2 = new Mountain(mountainCoordinateMedium.col, mountainCoordinateMedium.row);
   path = Utils.createRiverPath(grid2, mountain2);
   expect(path.length).toBeGreaterThanOrEqual(2);
 });
 test('generateRiverTileDirections', () => {
-  const tile1 = {q:0,r:0,s:0} as Tile;
-  tile1.coordinates = {q:0,r:0,s:0};
-  const tile2 = {q:1,r:0,s:-1} as Tile;
-  tile2.coordinates = {q:1,r:0,s:-1};
-  const tile3 = {q:0,r:1,s:-1} as Tile;
-  tile3.coordinates = {q:0,r:1,s:-1};
-  const tile4 = {q:1,r:1,s:-2} as Tile;
-  tile4.coordinates = {q:1,r:1,s:-2};
+  const tile1 = { q: 0, r: 0, s: 0 } as Tile;
+  tile1.coordinates = { q: 0, r: 0, s: 0 };
+  const tile2 = { q: 1, r: 0, s: -1 } as Tile;
+  tile2.coordinates = { q: 1, r: 0, s: -1 };
+  const tile3 = { q: 0, r: 1, s: -1 } as Tile;
+  tile3.coordinates = { q: 0, r: 1, s: -1 };
+  const tile4 = { q: 1, r: 1, s: -2 } as Tile;
+  tile4.coordinates = { q: 1, r: 1, s: -2 };
   const river: Tile[] = [tile1, tile2, tile3, tile4];
   const directionMap = Utils.generateRiverTileDirections(river);
   let directions = directionMap.get(GlobalUtils.coordinateToKey(tile1));

@@ -27,7 +27,15 @@ export class DefaultShaper implements IMapLandscapeShaper {
     this.columns = columns;
   }
 
-  generate(map: number[][], factorRiver: number): {terrain: number[][], landscape: number[][], rivers: number[][], riverTileDirections: Map<string, Direction[]>[]} {
+  generate(
+    map: number[][],
+    factorRiver: number,
+  ): {
+    terrain: number[][];
+    landscape: number[][];
+    rivers: number[][];
+    riverTileDirections: Map<string, Direction[]>[];
+  } {
     // create empty grid
     const grid = new Grid(Tile, rectangle({ width: this.columns, height: this.rows }));
 
@@ -46,7 +54,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const factorOasis = 0.05;
     const factorSwamp = 0.05;
     const factorWood = 0.3;
-    
+
     // how many rivers should we create? depending on map size
     const riverCount = Math.floor(factorRiver * this.size);
 
@@ -190,10 +198,8 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
     const riverTileDirections: Map<string, Direction[]>[] = [];
-    generatedRivers.forEach((river) => 
-      riverTileDirections.push(Utils.generateRiverTileDirections(river))
-    );
-    return {terrain, landscape, rivers, riverTileDirections};
+    generatedRivers.forEach((river) => riverTileDirections.push(Utils.generateRiverTileDirections(river)));
+    return { terrain, landscape, rivers, riverTileDirections };
   }
 
   // compute given number of rivers on given grid and returns them
@@ -215,17 +221,17 @@ export class DefaultShaper implements IMapLandscapeShaper {
     mountains.sort((a, b) => b.distanceToWater - a.distanceToWater);
 
     // create given amount of rivers
-    let generatedRivers:Tile[][] = [];
-    for(let i = 0; i < rivers; ++i) {
+    let generatedRivers: Tile[][] = [];
+    for (let i = 0; i < rivers; ++i) {
       const mountain = mountains.shift();
       let maxTry = 10;
-      let riverPath:Tile[] = [];
+      let riverPath: Tile[] = [];
       // try maxTry times to get a random river from this mountain
-      do{
+      do {
         riverPath = Utils.createRiverPath(grid, mountain!);
         --maxTry;
-      }while(maxTry > 0 && riverPath.length === 0);
-      if(riverPath.length > 0) {
+      } while (maxTry > 0 && riverPath.length === 0);
+      if (riverPath.length > 0) {
         // mark all river tiles on the grid
         riverPath.forEach((tile) => {
           tile.river = WaterFlowType.RIVER;
@@ -234,10 +240,16 @@ export class DefaultShaper implements IMapLandscapeShaper {
         generatedRivers.push(riverPath);
         // compute distance to next river
         mountains.forEach((mountain) => {
-          mountain.distanceToRiver = Utils.distanceToRiver(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
+          mountain.distanceToRiver = Utils.distanceToRiver(
+            grid,
+            mountain.pos_x,
+            mountain.pos_y,
+            this.rows,
+            this.columns,
+          );
         });
         // sort list of mountains
-        mountains.sort((a, b) => (b.distanceToWater + b.distanceToRiver) - (a.distanceToWater + a.distanceToRiver));
+        mountains.sort((a, b) => b.distanceToWater + b.distanceToRiver - (a.distanceToWater + a.distanceToRiver));
       }
     }
     return generatedRivers;
