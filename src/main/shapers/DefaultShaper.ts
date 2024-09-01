@@ -218,12 +218,11 @@ export class DefaultShaper implements IMapLandscapeShaper {
       mountain.distanceToWater = Utils.distanceToWater(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
     });
     // sort mountains descending by distance to water
-    mountains.sort((a, b) => b.distanceToWater - a.distanceToWater);
-
+    mountains.sort((a, b) => a.distanceToWater - b.distanceToWater);
     // create given amount of rivers
     let generatedRivers: Tile[][] = [];
     for (let i = 0; i < rivers; ++i) {
-      const mountain = mountains.shift();
+      const mountain = mountains[mountains.length - 1];
       let maxTry = 10;
       let riverPath: Tile[] = [];
       // try maxTry times to get a random river from this mountain
@@ -251,6 +250,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
         // sort list of mountains
         mountains.sort((a, b) => b.distanceToWater + b.distanceToRiver - (a.distanceToWater + a.distanceToRiver));
       }
+      mountains.pop();
     }
     return generatedRivers;
   }
