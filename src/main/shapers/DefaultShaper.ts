@@ -212,10 +212,10 @@ export class DefaultShaper implements IMapLandscapeShaper {
   private computeRivers(grid: Grid<Tile>, rivers: number, riverbed: number): Tile[][] {
     // create a list of mountains
     let mountains: Mountain[] = [];
-    for (let y = 0; y < this.rows; ++y) {
-      for (let x = 0; x < this.columns; ++x) {
-        if ((grid.getHex({ col: x, row: y }) as Tile).terrain === TerrainType.MOUNTAIN) {
-          mountains.push(new Mountain(x, y));
+    for (let r = 0; r < this.rows; ++r) {
+      for (let c = 0; c < this.columns; ++c) {
+        if ((grid.getHex({ col: c, row: r }) as Tile).terrain === TerrainType.MOUNTAIN) {
+          mountains.push(new Mountain(c, r));
         }
       }
     }
@@ -240,7 +240,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
           generatedRivers.push(riverPath);
           // mark all close to river tiles
           grid.forEach((tile) => {
-            if(tile.river == WaterFlowType.NONE) {
+            if(tile.river === WaterFlowType.NONE) {
               // compute distance to river
               const distance = Utils.distanceToRiver(grid, tile.x, tile.y, 0, 0);
               if(distance > 0 && distance <= riverbed){
