@@ -212,16 +212,15 @@ export class DefaultShaper implements IMapLandscapeShaper {
   private computeRivers(grid: Grid<Tile>, rivers: number, riverbed: number): Tile[][] {
     // create a list of mountains
     let mountains: Mountain[] = [];
-    for (let r = 0; r < this.rows; ++r) {
-      for (let c = 0; c < this.columns; ++c) {
-        if ((grid.getHex({ col: c, row: r }) as Tile).terrain === TerrainType.MOUNTAIN) {
-          mountains.push(new Mountain(c, r));
+    grid.forEach((tile) => {
+        if (tile.terrain === TerrainType.MOUNTAIN) {
+          mountains.push(new Mountain({q:tile.q, r:tile.r, s:tile.s}));
         }
-      }
-    }
+    });
     // compute distance to water for each mountain
     mountains.forEach((mountain) => {
-      mountain.distanceToWater = Utils.distanceToWater(grid, mountain.pos_x, mountain.pos_y, this.rows, this.columns);
+       const data = Utils.findNearestTile(grid, mountain.coordinates, Math.max(this.rows, this.columns), TerrainType.SHALLOW_WATER);
+       mountain.distanceToWater = data?.distance ?? 0;
     });
     let generatedRivers: Tile[][] = [];
     let maxTry = 30;
@@ -229,7 +228,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
       const mountainIndex = Utils.randomNumber(0, mountains.length - 1);
       const mountain = mountains[mountainIndex] as Mountain;
       // check if mountain position is possible
-      if ((grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile).river == WaterFlowType.NONE) {
+      if ((grid.getHex(mountain.coordinates) as Tile).river == WaterFlowType.NONE) {
         let riverPath = Utils.createRiverPath(grid, mountain, mountain.distanceToWater + 2);
         if (riverPath.length > 0) {
           // mark all river tiles on the grid

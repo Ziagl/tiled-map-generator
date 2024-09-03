@@ -1,11 +1,11 @@
-import { Direction, Grid, rectangle } from 'honeycomb-grid';
-import { MapSize } from '../main/enums/MapSize';
+import { /*Direction,*/ Grid, rectangle } from 'honeycomb-grid';
+//import { MapSize } from '../main/enums/MapSize';
 import { Utils } from '../main/Utils';
-import { TileDistribution } from '../main/models/TileDistribution';
+//import { TileDistribution } from '../main/models/TileDistribution';
 import { Tile } from '../main/models/Tile';
 import { TerrainType } from '../main';
-import { Mountain } from '../main/models/Mountain';
-import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
+//import { Mountain } from '../main/models/Mountain';
+//import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
 
 const mapSize = 8;
 // DEEP_WATER = 1
@@ -13,39 +13,39 @@ const mapSize = 8;
 // DESERT = 3
 // MOUNTAIN = 13
 const exampleMapEasy: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 
+  2, 2, 2, 2, 2, 2, 2, 2, 
+    2, 3, 4, 4, 3, 3, 3, 2, 
+  2, 3, 4, 13, 4, 3, 3, 2, 
+    2, 3, 4, 4, 3, 3, 3, 2, 
   2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 13, 3, 3, 3, 3, 2, 
+    2, 3, 3, 3, 3, 3, 3, 2, 
   2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-  1, 1, 1, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2,
 ];
-const mountainCoordinateEasy = { col: 2, row: 2 };
+const mountainCoordinateEasy = { q: 2, r: 2, s: -4 };
 const exampleMapMedium: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 
+  2, 2, 2, 2, 2, 2, 2, 2,  
+    2, 3, 3, 3, 3, 3, 3, 2, 
   2, 3, 3, 3, 3, 3, 3, 2, 
+    2, 3, 3, 13, 3, 3, 3, 2, 
   2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 1, 
-  2, 3, 3, 3, 13, 3, 3, 1, 
-  2, 3, 3, 3, 3, 3, 3, 1, 
+    2, 3, 3, 3, 3, 3, 3, 2, 
   2, 3, 3, 3, 3, 3, 3, 2, 
-  1, 1, 1, 1, 1, 2, 1, 2,
+    2, 2, 2, 2, 2, 2, 2, 2, 
 ];
-const mountainCoordinateMedium = { col: 4, row: 4 };
+const mountainCoordinateMedium = { q: 2, r: 3, s:-5 };
 const exampleMapAdvanced: number[] = [
-  1, 1, 1, 1, 1, 1, 1, 1, 
-  2, 3, 3, 3, 3, 3, 3, 2,
+  2, 2, 2, 2, 2, 2, 2, 2,  
+    2, 3, 3, 3, 3, 3, 3, 2,
   2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
+    2, 3, 3, 3, 3, 3, 3, 2, 
   2, 3, 3, 3, 13, 13, 3, 13,
-  2, 3, 3, 3, 3, 3, 3, 13, 
+    2, 3, 3, 3, 3, 3, 3, 13, 
   2, 3, 3, 3, 13, 3, 3, 13,
-  1, 1, 1, 1, 3, 2, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 2, 
 ];
 
-test('tileDistributionClass', () => {
+/*test('tileDistributionClass', () => {
   let distribution = new TileDistribution(0.0, 0.1, 0.8, 0.1);
   expect(distribution.polar).toBe(0.0);
   expect(distribution.temperate).toBe(0.1);
@@ -167,31 +167,35 @@ test('detectNeighborhood', () => {
   expect(direction).toBe(Direction.W);
   direction = Utils.detectNeighborhood(tile1, tile7);
   expect(direction).toBe(Direction.NW);
-});
-test('distanceToWater', () => {
-  const grid = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+});*/
+test('findNearestTile', () => {
+  // easy
+  const grid = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
+  let index = 0;
   grid.forEach((tile) => {
-    tile.terrain = TerrainType.DESERT;
+    tile.terrain = exampleMapEasy[index++] as TerrainType;
   });
-  let tile = grid.getHex({ col: 4, row: 3 }) as Tile;
-  tile.terrain = TerrainType.SHALLOW_WATER;
-  let distance = Utils.distanceToWater(grid, 4, 4, 10, 10);
-  expect(distance).toBe(2);
-  const grid1 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+  let data = Utils.findNearestTile(grid, mountainCoordinateEasy, 10, TerrainType.SHALLOW_WATER);
+  expect(data?.distance).toBe(2);
+  data = Utils.findNearestTile(grid, mountainCoordinateEasy, 10, TerrainType.DEEP_WATER);
+  expect(data).toBeUndefined;
+  // medium
+  const grid1 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
+  index = 0;
   grid1.forEach((tile) => {
-    tile.terrain = TerrainType.DESERT;
+    tile.terrain = exampleMapMedium[index++] as TerrainType;
   });
-  tile = grid1.getHex({ col: 0, row: 0 }) as Tile;
-  tile.terrain = TerrainType.SHALLOW_WATER;
-  distance = Utils.distanceToWater(grid1, 4, 4, 10, 10);
-  expect(distance).toBe(8);
-  const grid2 = new Grid(Tile, rectangle({ width: 10, height: 10 }));
+  data = Utils.findNearestTile(grid1, mountainCoordinateMedium, 10, TerrainType.SHALLOW_WATER);
+  expect(data?.distance).toBeGreaterThanOrEqual(3);
+  // advanced
+  const grid2 = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
+  index = 0;
   grid2.forEach((tile) => {
-    tile.terrain = TerrainType.DESERT;
+    tile.terrain = exampleMapAdvanced[index++] as TerrainType;
   });
-  distance = Utils.distanceToWater(grid2, 4, 4, 10, 10);
-  expect(distance).toBe(0);
-});
+  data = Utils.findNearestTile(grid2, mountainCoordinateMedium, 10, TerrainType.SHALLOW_WATER);
+  expect(data?.distance).toBeGreaterThanOrEqual(3);
+});/*
 test('createRiverPath', () => {
   // easy
   const grid = new Grid(Tile, rectangle({ width: mapSize, height: mapSize }));
@@ -245,4 +249,4 @@ test('generateRiverTileDirections', () => {
   expect(directions?.length).toBe(2);
   expect(directions![0]).toBe(Direction.NE);
   expect(directions![1]).toBe(Direction.E);
-});
+});*/

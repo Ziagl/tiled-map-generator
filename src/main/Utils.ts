@@ -1,4 +1,4 @@
-import { CubeCoordinates, defineHex, Direction, Grid, HexOffset, hexToOffset, Orientation, ring } from 'honeycomb-grid';
+import { CubeCoordinates, Direction, Grid, /*defineHex, HexOffset, hexToOffset, Orientation,*/ ring } from 'honeycomb-grid';
 import { MapSize } from './enums/MapSize';
 import { Tile } from './models/Tile';
 import { TerrainType } from './enums/TerrainType';
@@ -562,7 +562,7 @@ export class Utils {
   }
 
   // computes the distance to next water tile
-  public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
+  /*public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
     let distance = 0;
     let radius = 1;
     const maxRadius = Math.max(rows, columns);
@@ -577,7 +577,7 @@ export class Utils {
       ++radius;
     } while (distance === 0 && radius <= maxRadius);
     return distance;
-  }
+  }*/
 
   // computes the distance to next river tile
   public static distanceToRiver(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
@@ -597,13 +597,40 @@ export class Utils {
     return distance;
   }
 
+  // finds nearest tile of given type or undefined if it not found
+  public static findNearestTile(grid: Grid<Tile>, coordinates: CubeCoordinates, maxRadius: number, type: TerrainType): {destinationTile: Tile, distance: number} | undefined {
+    let distance = 0;
+    let radius = 1;
+    let destinationTile:Tile|undefined = undefined;
+    do {
+      const radiusRing = ring<Tile>({ center: [coordinates.q, coordinates.r], radius: radius });
+      grid.traverse(radiusRing).forEach((tile) => {
+        if (tile.terrain == type) {
+          distance = radius;
+          destinationTile = tile;
+        }
+      });
+      ++radius;
+    } while (distance === 0 && radius <= maxRadius);
+    if(destinationTile == undefined) {
+      return destinationTile;
+    }
+    else {
+      return { destinationTile, distance};
+    }
+  }
+
   // creates a path from given mountain to a water tile nearby
   public static createRiverPath(grid: Grid<Tile>, mountain: Mountain, maxLength: number): Tile[] {
+    let riverPath: Tile[] = [];
+    const mountainTile = grid.getHex(mountain.coordinates) as Tile;
+    // find destination water tile
+    //const waterTile = Utils.findNearestTile(grid, mountain.pos_x, mountain.pos_y, maxLength, TerrainType.SHALLOW_WATER);
+
+
     let openList: Tile[] = [];
     let closedList: Tile[][] = [];
-    let riverPath: Tile[] = [];
     let loopMax = Utils.MAXLOOPS;
-    const mountainTile = grid.getHex({ col: mountain.pos_x, row: mountain.pos_y }) as Tile;
     let nextTile: Tile = mountainTile;
     let success = false;
     let lastDistance = 0;
@@ -663,12 +690,11 @@ export class Utils {
           } else {
             // option 2: sort by distanceToWater first
             let sortedTiles: {tile: Tile, distanceToWater: number}[] = [];
-            const hexSetting = { offset: -1 as HexOffset, orientation: Orientation.POINTY };
-            const hexDefinition = defineHex(hexSetting);
             possibleTiles.forEach((tile) => {
-              const hex = new hexDefinition([tile.q, tile.r]);
-              const offset = hexToOffset(hex);
-              sortedTiles.push({tile, distanceToWater: Utils.distanceToWater(grid, offset.col, offset.row, 0, 0)});
+              const data = Utils.findNearestTile(grid, {q:tile.q, r:tile.r, s:tile.s}, 20, TerrainType.SHALLOW_WATER);
+              if(data) {
+                sortedTiles.push({tile, distanceToWater: data?.distance});
+              }
             });
             sortedTiles.sort((a, b) => a.distanceToWater - b.distanceToWater);
             nextTile = sortedTiles[0]!.tile;
@@ -679,12 +705,6 @@ export class Utils {
                 Math.abs(mountainTile.s - nextTile.s)) /
               2;
           riverPath.push(nextTile);
-          if(riverPath.length > maxLength) {
-            // END max length exceeded
-            console.log("END: river path exceeded max length of "+maxLength);
-            closedList.push(openList);
-            openList = [];
-          }
         } else {
           // END no possible tiles for river
           console.log("END: no tiles found to append river");
@@ -692,12 +712,20 @@ export class Utils {
           openList = [];
         }
       }
+      // if river is too long, stop computing it
+      if(riverPath.length > maxLength) {
+        // END max length exceeded
+        console.log("END: river path exceeded max length of "+maxLength);
+        closedList.push(openList);
+        openList = [];
+      }
       --loopMax;
     } while (loopMax > 0 && openList.length > 0);
     // early exit
     if (success == false || riverPath.length === 0) {
       return [];
     }
+    /*
     // so there is now a path of single tiles, append it for a second tile
     const riverTileNeighbors: Tile[][] = [];
     const mountainTileNeighbors = Utils.neighbors(grid, { q: mountainTile.q, r: mountainTile.r, s: mountainTile.s });
@@ -790,8 +818,8 @@ export class Utils {
     for (let i = 0; i < riverPath.length; i++) {
       returnRiverPath.push(riverPath[i] as Tile);
       returnRiverPath.push(otherRiverBank[i] as Tile);
-    }
-    return returnRiverPath;
+    }*/
+    return riverPath;
   }
 
   // returns all elements that are in array1 but not in array2
