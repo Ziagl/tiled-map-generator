@@ -561,31 +561,12 @@ export class Utils {
     return map;
   }
 
-  // computes the distance to next water tile
-  /*public static distanceToWater(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
-    let distance = 0;
-    let radius = 1;
-    const maxRadius = Math.max(rows, columns);
-    do {
-      const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
-      const tiles = grid.traverse(radiusRing);
-      tiles.forEach((tile) => {
-        if (tile.terrain === TerrainType.SHALLOW_WATER || tile.terrain === TerrainType.DEEP_WATER) {
-          distance = radius;
-        }
-      });
-      ++radius;
-    } while (distance === 0 && radius <= maxRadius);
-    return distance;
-  }*/
-
   // computes the distance to next river tile
-  public static distanceToRiver(grid: Grid<Tile>, x: number, y: number, rows: number, columns: number): number {
+  public static distanceToRiver(grid: Grid<Tile>, coordinates: CubeCoordinates, maxRadius: number): number {
     let distance = 0;
     let radius = 1;
-    const maxRadius = Math.max(Math.min(rows, 30), Math.min(columns, 30));
     do {
-      const radiusRing = ring<Tile>({ center: [y, x], radius: radius });
+      const radiusRing = ring<Tile>({ center: [coordinates.q, coordinates.r], radius: radius });
       const tiles = grid.traverse(radiusRing);
       tiles.forEach((tile) => {
         if (tile.river === WaterFlowType.RIVER) {
@@ -624,10 +605,6 @@ export class Utils {
   public static createRiverPath(grid: Grid<Tile>, mountain: Mountain, maxLength: number): Tile[] {
     let riverPath: Tile[] = [];
     const mountainTile = grid.getHex(mountain.coordinates) as Tile;
-    // find destination water tile
-    //const waterTile = Utils.findNearestTile(grid, mountain.pos_x, mountain.pos_y, maxLength, TerrainType.SHALLOW_WATER);
-
-
     let openList: Tile[] = [];
     let closedList: Tile[][] = [];
     let loopMax = Utils.MAXLOOPS;
@@ -725,7 +702,11 @@ export class Utils {
     if (success == false || riverPath.length === 0) {
       return [];
     }
-    /*
+    return riverPath;
+  }
+
+  /*
+  public static extendRiverPath(grid: Grid<Tile>, mountain: Mountain, maxLength: number): Tile[] {
     // so there is now a path of single tiles, append it for a second tile
     const riverTileNeighbors: Tile[][] = [];
     const mountainTileNeighbors = Utils.neighbors(grid, { q: mountainTile.q, r: mountainTile.r, s: mountainTile.s });
@@ -818,9 +799,9 @@ export class Utils {
     for (let i = 0; i < riverPath.length; i++) {
       returnRiverPath.push(riverPath[i] as Tile);
       returnRiverPath.push(otherRiverBank[i] as Tile);
-    }*/
+    }
     return riverPath;
-  }
+  }*/
 
   // returns all elements that are in array1 but not in array2
   public static removeCommonTiles(array1: Tile[], array2: Tile[]): Tile[] {

@@ -235,18 +235,20 @@ export class DefaultShaper implements IMapLandscapeShaper {
           riverPath.forEach((tile) => {
             tile.river = WaterFlowType.RIVER;
           });
-          // add river to list of rivers
-          generatedRivers.push(riverPath);
-          // mark all close to river tiles
+          // mark all close to river tiles as riverbed
           grid.forEach((tile) => {
             if(tile.river === WaterFlowType.NONE) {
               // compute distance to river
-              const distance = Utils.distanceToRiver(grid, tile.x, tile.y, 0, 0);
+              const distance = Utils.distanceToRiver(grid, tile, 4);
               if(distance > 0 && distance <= riverbed){
                 tile.river = WaterFlowType.RIVERBED;
               }
             }
           });
+          // generate riverbed
+          // TODO
+          // add river to list of rivers
+          generatedRivers.push(riverPath);
         }
       }
       mountains.splice(mountainIndex, 1);
