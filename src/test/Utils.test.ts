@@ -3,7 +3,7 @@ import { MapSize } from '../main/enums/MapSize';
 import { Utils } from '../main/Utils';
 import { TileDistribution } from '../main/models/TileDistribution';
 import { Tile } from '../main/models/Tile';
-import { TerrainType } from '../main';
+import { TerrainType, WaterFlowType } from '../main';
 import { Mountain } from '../main/models/Mountain';
 import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
 
@@ -248,13 +248,13 @@ test('createRiverPath', () => {
 });
 test('generateRiverTileDirections', () => {
   const tile1 = { q: 0, r: 0, s: 0 } as Tile;
-  tile1.coordinates = { q: 0, r: 0, s: 0 };
+  tile1.river = WaterFlowType.RIVER;
   const tile2 = { q: 1, r: 0, s: -1 } as Tile;
-  tile2.coordinates = { q: 1, r: 0, s: -1 };
+  tile2.river = WaterFlowType.RIVERBANK;
   const tile3 = { q: 0, r: 1, s: -1 } as Tile;
-  tile3.coordinates = { q: 0, r: 1, s: -1 };
+  tile3.river = WaterFlowType.RIVER;
   const tile4 = { q: 1, r: 1, s: -2 } as Tile;
-  tile4.coordinates = { q: 1, r: 1, s: -2 };
+  tile4.river = WaterFlowType.RIVERBANK;
   const river: Tile[] = [tile1, tile2, tile3, tile4];
   const directionMap = Utils.generateRiverTileDirections(river);
   let directions = directionMap.get(GlobalUtils.coordinateToKey(tile1));

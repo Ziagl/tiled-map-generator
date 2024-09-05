@@ -668,7 +668,7 @@ export class Utils {
         }
         if (possibleTiles.length > 0) {
           // determine next tile
-          if(Utils.randomNumber(0, 4) === 0) {
+          if(Utils.randomNumber(0, 3) === 0) {
             // option 1: random tile
             nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
             lastDistance =
@@ -838,22 +838,23 @@ export class Utils {
     // create empty dictionary
     let riverDirections = new Map<string, Direction[]>();
     for (let i = 0; i < riverTiles.length; ++i) {
-      let neighborDirections: Direction[] = [];
-      let skipEven = false;
-      if (i % 2 == 0) {
-        skipEven = true;
-      }
-      for (let j = 0; j < riverTiles.length; ++j) {
-        if ((skipEven && j % 2 == 0) || (!skipEven && j % 2 != 0)) {
+      for(let j = 0; j < riverTiles.length; ++j) {
+        if(i === j) {
           continue;
         }
-        const direction = this.detectNeighborhood(riverTiles[i] as Tile, riverTiles[j] as Tile);
-        if (direction != undefined && !neighborDirections.includes(direction)) {
-          neighborDirections.push(direction);
+        if(riverTiles[i]!.river != riverTiles[j]!.river) {
+          let neighborDirections: Direction[] = [];
+          const key = GlobalUtils.coordinateToKey(riverTiles[i] as CubeCoordinates);
+          if(riverDirections.has(key)) {
+            neighborDirections = riverDirections.get(key) as Direction[];
+          }
+          const direction = this.detectNeighborhood(riverTiles[i] as Tile, riverTiles[j] as Tile);
+          if (direction != undefined && !neighborDirections.includes(direction)) {
+            neighborDirections.push(direction);
+          }
+          riverDirections.set(key, neighborDirections);
         }
       }
-      const key = GlobalUtils.coordinateToKey(riverTiles[i]?.coordinates!);
-      riverDirections.set(key, neighborDirections);
     }
     return riverDirections;
   }
