@@ -58,9 +58,10 @@ export class DefaultShaper implements IMapLandscapeShaper {
 
     // how many rivers should we create? depending on map size
     const riverCount = Math.floor(factorRiver * this.size);
+    const minRiverLength = 3;
 
     // generate rivers
-    const generatedRivers = this.computeRivers(grid, riverCount, riverbed);
+    const generatedRivers = this.computeRivers(grid, riverCount, minRiverLength, riverbed);
 
     // generate SNOW tiles and consider temperature
     Utils.createSnowTiles(grid, this.rows, this.temperature);
@@ -200,21 +201,22 @@ export class DefaultShaper implements IMapLandscapeShaper {
     const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
     const riverTileDirections = new Map<string, Direction[]>();
     generatedRivers.forEach((river) =>
-      Utils.generateRiverTileDirections(river).forEach((value, key) => {
-        console.log("set "+key+" value length "+value.length);
-        riverTileDirections.set(key, value);}),
+      Utils.generateRiverTileDirections(river).forEach((value, key) => riverTileDirections.set(key, value)),
     );
     return { terrain, landscape, rivers, riverTileDirections };
   }
 
   // compute given number of rivers on given grid and returns them, riverbed defines range around
   // river no other river can be added to map
-  private computeRivers(grid: Grid<Tile>, rivers: number, riverbed: number): Tile[][] {
+  private computeRivers(grid: Grid<Tile>, rivers: number, minRiverLength: number, riverbed: number): Tile[][] {
     // create a list of mountains
     let mountains: Mountain[] = [];
     grid.forEach((tile) => {
         if (tile.terrain === TerrainType.MOUNTAIN) {
-          mountains.push(new Mountain({q:tile.q, r:tile.r, s:tile.s}));
+          // for a good river there should be at least 2 tiles between mountain and edge
+          if(!Utils.isTileAtEdge(grid, tile, 2)) {
+            mountains.push(new Mountain({q:tile.q, r:tile.r, s:tile.s}));
+          }
         }
     });
     // compute distance to water for each mountain
@@ -230,7 +232,8 @@ export class DefaultShaper implements IMapLandscapeShaper {
       // check if mountain position is possible
       if ((grid.getHex(mountain.coordinates) as Tile).river == WaterFlowType.NONE) {
         let riverPath = Utils.createRiverPath(grid, mountain, mountain.distanceToWater + 2);
-        if (riverPath.length > 0) {
+        // forbid river if it is too short
+        if (riverPath.length >= minRiverLength) {
           // mark all river tiles on the grid
           riverPath.forEach((tile) => {
             tile.river = WaterFlowType.RIVER;
@@ -241,12 +244,12 @@ export class DefaultShaper implements IMapLandscapeShaper {
               // compute distance to river
               const distance = Utils.distanceToRiver(grid, tile, 4);
               if(distance > 0 && distance <= riverbed){
-                tile.river = WaterFlowType.RIVERBED;
+                tile.river = WaterFlowType.RIVERAREA;
               }
             }
           });
           // generate riverbed
-          // TODO
+          Utils.extendRiverPath(grid, mountain, riverPath);
           // add river to list of rivers
           generatedRivers.push(riverPath);
         }

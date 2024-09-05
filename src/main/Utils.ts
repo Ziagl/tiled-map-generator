@@ -1,4 +1,4 @@
-import { CubeCoordinates, Direction, Grid, /*defineHex, HexOffset, hexToOffset, Orientation,*/ ring } from 'honeycomb-grid';
+import { CubeCoordinates, Direction, Grid, /*defineHex, HexOffset, hexToOffset, Orientation,*/ ring, spiral } from 'honeycomb-grid';
 import { MapSize } from './enums/MapSize';
 import { Tile } from './models/Tile';
 import { TerrainType } from './enums/TerrainType';
@@ -601,6 +601,18 @@ export class Utils {
     }
   }
 
+  // checks if tile is at least distance tiles away from edge of grid
+  public static isTileAtEdge(grid: Grid<Tile>, tile: Tile, distance: number): boolean {
+    // first compute expected number of elements for given distance
+    let totalElements = 1;
+    for (let i = 1; i <= distance; ++i) {
+      totalElements += i * 6;
+    }
+    // compute spiral and compare with total elements 
+    const radiusSpiral = spiral<Tile>({ start: [tile.q, tile.r], radius: distance });
+    return grid.traverse(radiusSpiral).size != totalElements;
+  }
+
   // creates a path from given mountain to a water tile nearby
   public static createRiverPath(grid: Grid<Tile>, mountain: Mountain, maxLength: number): Tile[] {
     let riverPath: Tile[] = [];
@@ -705,103 +717,72 @@ export class Utils {
     return riverPath;
   }
 
-  /*
-  public static extendRiverPath(grid: Grid<Tile>, mountain: Mountain, maxLength: number): Tile[] {
+  // extend computed river path for a second tile thickness
+  public static extendRiverPath(grid: Grid<Tile>, mountain: Mountain, riverPath: Tile[]) {
     // so there is now a path of single tiles, append it for a second tile
     const riverTileNeighbors: Tile[][] = [];
-    const mountainTileNeighbors = Utils.neighbors(grid, { q: mountainTile.q, r: mountainTile.r, s: mountainTile.s });
+    const mountainTileNeighbors = Utils.neighbors(grid, mountain.coordinates);
     riverPath.forEach((tile) => {
       riverTileNeighbors.push(Utils.neighbors(grid, { q: tile.q, r: tile.r, s: tile.s }));
     });
-    let otherRiverBank: Tile[] = [];
+    // special case river path of 1 tile
     if (riverPath.length === 1) {
-      // special case if river only contains 1 tile, add a random neighbor tile
-      const sharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
-      if (sharedTiles.length !== 2) {
-        console.log('Error: special case for 1 tile river failed.');
+     console.log("Error: 1 tile long rivers are not supported.");
+     return;
+    }
+    // start by finding first river bank tile
+    let otherRiverBank: Tile[] = [];
+    const sharedTiles = Utils.findCommonTiles([
+      mountainTileNeighbors,
+      riverTileNeighbors[0] as Tile[],
+      riverTileNeighbors[1] as Tile[],
+    ]);
+    if (sharedTiles.length == 1) {
+      otherRiverBank.push(sharedTiles[0] as Tile);
+    } else {
+      const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
+      if (localSharedTiles.length !== 2) {
+        console.log('Error: special case for first tile of river failed.');
+        return;
       } else {
         // randomly choose one of two neighbors
-        otherRiverBank.push(sharedTiles[Utils.randomNumber(0, 1)] as Tile);
+        otherRiverBank.push(localSharedTiles[Utils.randomNumber(0, 1)] as Tile);
       }
+    }
+    if (otherRiverBank.length === 0) {
+      console.log('Error: special case for otherRiverBank is empty.');
+      return;
     } else {
-      // default case get shared tile of mountain neighbors and neighbors of both first river tiles
-      const sharedTiles = Utils.findCommonTiles([
-        mountainTileNeighbors,
-        riverTileNeighbors[0] as Tile[],
-        riverTileNeighbors[1] as Tile[],
-      ]);
-      if (sharedTiles.length == 1) {
-        otherRiverBank.push(sharedTiles[0] as Tile);
-      } else {
-        const localSharedTiles = Utils.findCommonTiles([mountainTileNeighbors, riverTileNeighbors[0] as Tile[]]);
-        if (localSharedTiles.length !== 2) {
-          console.log('Error: special case for first tile of river failed.');
-        } else {
-          // randomly choose one of two neighbors
-          otherRiverBank.push(localSharedTiles[Utils.randomNumber(0, 1)] as Tile);
-        }
-      }
-      if (otherRiverBank.length === 0) {
-        console.log('Error: special case for otherRiverBank is empty.');
-      } else {
-        // for all other tiles in riverPath
-        for (let i = 1; i < riverPath.length; ++i) {
-          let otherRiverBankNeighbors = Utils.neighbors(grid, {
-            q: otherRiverBank[otherRiverBank.length - 1]!.q,
-            r: otherRiverBank[otherRiverBank.length - 1]!.r,
-            s: otherRiverBank[otherRiverBank.length - 1]!.s,
-          });
+      // for all other tiles in riverPath
+      for (let i = 0; i < riverPath.length; ++i) {
+        const maxTry = 5;
+        let tryCount = 0;
+        do {
+          let otherRiverBankNeighbors = Utils.neighbors(grid, otherRiverBank[otherRiverBank.length - 1] as CubeCoordinates);
           // filter out all river tiles
           otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
           let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
           // filter out all neighbor tiles that are part of river
           sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
-          if (sharedTiles.length == 1) {
-            otherRiverBank.push(sharedTiles[0] as Tile);
-          } else {
-            // a curve in the river may cause this, so we add last added tile again (to match pairs)
-            otherRiverBank.push(otherRiverBank[otherRiverBank.length - 1] as Tile);
-          }
-        }
-
-        // at the end of the river...if last river path do not share the same water tile with last otherRiverBank
-        let otherRiverBankNeighbors = Utils.neighbors(grid, {
-          q: otherRiverBank[otherRiverBank.length - 1]!.q,
-          r: otherRiverBank[otherRiverBank.length - 1]!.r,
-          s: otherRiverBank[otherRiverBank.length - 1]!.s,
-        });
-        otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
-        let sharedWater = Utils.findCommonTiles([riverTileNeighbors[riverPath.length - 1] as Tile[], otherRiverBankNeighbors as Tile[]]);
-        // filter out all neighbor tiles that are part of river
-        sharedWater = Utils.removeCommonTiles(sharedTiles, riverPath);
-        let sharedWaterTile = false;
-        sharedWater.forEach((tile) => {
-          if(tile.terrain == TerrainType.DEEP_WATER || tile.terrain == TerrainType.SHALLOW_WATER) {
-            sharedWaterTile = true;
-          }
-        });
-        if(!sharedWaterTile) {
-          console.log("found river with missing last other river bank tile.");
-        }
+          sharedTiles.forEach((sharedTile) => {
+            if (sharedTile.terrain != TerrainType.SHALLOW_WATER &&
+                !(sharedTile.q == mountain.coordinates.q && 
+                  sharedTile.r == mountain.coordinates.r && 
+                  sharedTile.s == mountain.coordinates.s)) {
+              if(!otherRiverBank.includes(sharedTile as Tile)) {
+                otherRiverBank.push(sharedTile as Tile);
+              }
+            }
+          });
+          ++tryCount;
+        } while (tryCount < maxTry);
       }
     }
-    // merge computed river and otherRiverBank
-    if (riverPath.length > otherRiverBank.length) {
-      console.log(
-        'Error: riverPath ' +
-          riverPath.length +
-          ' is longer than otherRiverBank ' +
-          otherRiverBank.length,
-      );
-      return [];
+    for (let i = 0; i < otherRiverBank.length; ++i) {
+      otherRiverBank[i]!.river = WaterFlowType.RIVERBANK;
+      riverPath.push(otherRiverBank[i] as Tile);
     }
-    let returnRiverPath: Tile[] = [];
-    for (let i = 0; i < riverPath.length; i++) {
-      returnRiverPath.push(riverPath[i] as Tile);
-      returnRiverPath.push(otherRiverBank[i] as Tile);
-    }
-    return riverPath;
-  }*/
+  }
 
   // returns all elements that are in array1 but not in array2
   public static removeCommonTiles(array1: Tile[], array2: Tile[]): Tile[] {

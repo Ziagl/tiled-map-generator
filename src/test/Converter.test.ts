@@ -26,7 +26,6 @@ test('generateTiledJson', () => {
 });
 test('generateTiledFile', () => {
   let gen = new Generator();
-  //@ts-ignore
   gen.generateMap(MapType.SUPER_CONTINENT, MapSize.MICRO, MapTemperature.NORMAL, MapHumidity.NORMAL, 0.0);
   let converter = new Converter();
   const [map, rows, columns] = gen.exportMap();
