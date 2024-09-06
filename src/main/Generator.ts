@@ -29,7 +29,7 @@ export class Generator {
   private _map_x: number = 0; // x dimension
   private _map_y: number = 0; // y dimension
   private _mapRiverTileDirections: Map<string, Direction[]> = null!; // river tile directions
-  
+
   constructor() {
     this._map = [];
   }

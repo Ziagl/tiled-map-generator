@@ -12,7 +12,7 @@ export interface IMapLandscapeShaper {
   generate(
     map: number[][],
     factorRiver: number,
-    riverbed: number
+    riverbed: number,
   ): {
     terrain: number[][];
     landscape: number[][];

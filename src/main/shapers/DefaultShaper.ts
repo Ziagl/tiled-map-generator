@@ -30,7 +30,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
   generate(
     map: number[][],
     factorRiver: number,
-    riverbed: number
+    riverbed: number,
   ): {
     terrain: number[][];
     landscape: number[][];
@@ -212,21 +212,26 @@ export class DefaultShaper implements IMapLandscapeShaper {
     // create a list of mountains
     let mountains: Mountain[] = [];
     grid.forEach((tile) => {
-        if (tile.terrain === TerrainType.MOUNTAIN) {
-          // for a good river there should be at least 2 tiles between mountain and edge
-          if(!Utils.isTileAtEdge(grid, tile, 2)) {
-            mountains.push(new Mountain({q:tile.q, r:tile.r, s:tile.s}));
-          }
+      if (tile.terrain === TerrainType.MOUNTAIN) {
+        // for a good river there should be at least 2 tiles between mountain and edge
+        if (!Utils.isTileAtEdge(grid, tile, 2)) {
+          mountains.push(new Mountain({ q: tile.q, r: tile.r, s: tile.s }));
         }
+      }
     });
     // compute distance to water for each mountain
     mountains.forEach((mountain) => {
-       const data = Utils.findNearestTile(grid, mountain.coordinates, Math.max(this.rows, this.columns), TerrainType.SHALLOW_WATER);
-       mountain.distanceToWater = data?.distance ?? 0;
+      const data = Utils.findNearestTile(
+        grid,
+        mountain.coordinates,
+        Math.max(this.rows, this.columns),
+        TerrainType.SHALLOW_WATER,
+      );
+      mountain.distanceToWater = data?.distance ?? 0;
     });
     let generatedRivers: Tile[][] = [];
     let maxTry = 30;
-    do{
+    do {
       const mountainIndex = Utils.randomNumber(0, mountains.length - 1);
       const mountain = mountains[mountainIndex] as Mountain;
       // check if mountain position is possible
@@ -240,10 +245,10 @@ export class DefaultShaper implements IMapLandscapeShaper {
           });
           // mark all close to river tiles as riverbed
           grid.forEach((tile) => {
-            if(tile.river === WaterFlowType.NONE) {
+            if (tile.river === WaterFlowType.NONE) {
               // compute distance to river
               const distance = Utils.distanceToRiver(grid, tile, 4);
-              if(distance > 0 && distance <= riverbed){
+              if (distance > 0 && distance <= riverbed) {
                 tile.river = WaterFlowType.RIVERAREA;
               }
             }
@@ -256,7 +261,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
       }
       mountains.splice(mountainIndex, 1);
       --maxTry;
-    }while(rivers > generatedRivers.length && maxTry > 0 && mountains.length > 0);
+    } while (rivers > generatedRivers.length && maxTry > 0 && mountains.length > 0);
     return generatedRivers;
   }
 }

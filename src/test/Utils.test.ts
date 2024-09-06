@@ -13,36 +13,18 @@ const mapSize = 8;
 // DESERT = 3
 // MOUNTAIN = 13
 const exampleMapEasy: number[] = [
-  2, 2, 2, 2, 2, 2, 2, 2, 
-    2, 3, 4, 4, 3, 3, 3, 2, 
-  2, 3, 4, 13, 4, 3, 3, 2, 
-    2, 3, 4, 4, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 4, 4, 3, 3, 3, 2, 2, 3, 4, 13, 4, 3, 3, 2, 2, 3, 4, 4, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3,
+  2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 ];
 const mountainCoordinateEasy = { q: 2, r: 2, s: -4 };
 const exampleMapMedium: number[] = [
-  2, 2, 2, 2, 2, 2, 2, 2,  
-    2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 3, 3, 13, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 2, 2, 2, 2, 2, 2, 2, 
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 13, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3,
+  2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 ];
-const mountainCoordinateMedium = { q: 2, r: 3, s:-5 };
+const mountainCoordinateMedium = { q: 2, r: 3, s: -5 };
 const exampleMapAdvanced: number[] = [
-  2, 2, 2, 2, 2, 2, 2, 2,  
-    2, 3, 3, 3, 3, 3, 3, 2,
-  2, 3, 3, 3, 3, 3, 3, 2, 
-    2, 3, 3, 3, 3, 3, 3, 2, 
-  2, 3, 3, 3, 13, 13, 3, 13,
-    2, 3, 3, 3, 3, 3, 3, 13, 
-  2, 3, 3, 3, 13, 3, 3, 13,
-    2, 2, 2, 2, 2, 2, 2, 2, 
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 3, 3, 3, 13, 13, 3,
+  13, 2, 3, 3, 3, 3, 3, 3, 13, 2, 3, 3, 3, 13, 3, 3, 13, 2, 2, 2, 2, 2, 2, 2, 2,
 ];
 
 test('tileDistributionClass', () => {
@@ -219,7 +201,8 @@ test('createRiverPath', () => {
     tile.terrain = exampleMapEasy[index++] as TerrainType;
   });
   let mountain = new Mountain(mountainCoordinateEasy);
-  let distanceToWater = Utils.findNearestTile(grid, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
+  let distanceToWater =
+    Utils.findNearestTile(grid, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
   expect(distanceToWater).toBeGreaterThan(0);
   let path = Utils.createRiverPath(grid, mountain, distanceToWater);
   expect(path.length).toBeGreaterThanOrEqual(0);
@@ -230,7 +213,8 @@ test('createRiverPath', () => {
     tile.terrain = exampleMapMedium[index++] as TerrainType;
   });
   const mountain1 = new Mountain(mountainCoordinateMedium);
-  distanceToWater = Utils.findNearestTile(grid1, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
+  distanceToWater =
+    Utils.findNearestTile(grid1, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
   expect(distanceToWater).toBeGreaterThan(0);
   path = Utils.createRiverPath(grid1, mountain1, distanceToWater + 5);
   // advanced
@@ -241,7 +225,8 @@ test('createRiverPath', () => {
     tile.terrain = exampleMapAdvanced[index++] as TerrainType;
   });
   const mountain2 = new Mountain(mountainCoordinateMedium);
-  distanceToWater = Utils.findNearestTile(grid2, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
+  distanceToWater =
+    Utils.findNearestTile(grid2, mountain.coordinates, mapSize, TerrainType.SHALLOW_WATER)?.distance ?? 0;
   expect(distanceToWater).toBeGreaterThan(0);
   path = Utils.createRiverPath(grid2, mountain2, distanceToWater + 5);
   expect(path.length).toBeGreaterThanOrEqual(2);

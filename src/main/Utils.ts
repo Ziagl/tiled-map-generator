@@ -1,4 +1,10 @@
-import { CubeCoordinates, Direction, Grid, /*defineHex, HexOffset, hexToOffset, Orientation,*/ ring, spiral } from 'honeycomb-grid';
+import {
+  CubeCoordinates,
+  Direction,
+  Grid,
+  /*defineHex, HexOffset, hexToOffset, Orientation,*/ ring,
+  spiral,
+} from 'honeycomb-grid';
 import { MapSize } from './enums/MapSize';
 import { Tile } from './models/Tile';
 import { TerrainType } from './enums/TerrainType';
@@ -579,10 +585,15 @@ export class Utils {
   }
 
   // finds nearest tile of given type or undefined if it not found
-  public static findNearestTile(grid: Grid<Tile>, coordinates: CubeCoordinates, maxRadius: number, type: TerrainType): {destinationTile: Tile, distance: number} | undefined {
+  public static findNearestTile(
+    grid: Grid<Tile>,
+    coordinates: CubeCoordinates,
+    maxRadius: number,
+    type: TerrainType,
+  ): { destinationTile: Tile; distance: number } | undefined {
     let distance = 0;
     let radius = 1;
-    let destinationTile:Tile|undefined = undefined;
+    let destinationTile: Tile | undefined = undefined;
     do {
       const radiusRing = ring<Tile>({ center: [coordinates.q, coordinates.r], radius: radius });
       grid.traverse(radiusRing).forEach((tile) => {
@@ -593,11 +604,10 @@ export class Utils {
       });
       ++radius;
     } while (distance === 0 && radius <= maxRadius);
-    if(destinationTile == undefined) {
+    if (destinationTile == undefined) {
       return destinationTile;
-    }
-    else {
-      return { destinationTile, distance};
+    } else {
+      return { destinationTile, distance };
     }
   }
 
@@ -608,7 +618,7 @@ export class Utils {
     for (let i = 1; i <= distance; ++i) {
       totalElements += i * 6;
     }
-    // compute spiral and compare with total elements 
+    // compute spiral and compare with total elements
     const radiusSpiral = spiral<Tile>({ start: [tile.q, tile.r], radius: distance });
     return grid.traverse(radiusSpiral).size != totalElements;
   }
@@ -648,9 +658,9 @@ export class Utils {
       // select next tile
       if (openList.length > 0 && success === false) {
         let possibleTiles: Tile[] = [];
-        // in near surrounding of mountain, 
+        // in near surrounding of mountain,
         // make sure next tile is further away from mountain as last tile
-        if(lastDistance < 2) {
+        if (lastDistance < 2) {
           for (let i = 0; i < openList.length; i++) {
             const distanceToMountain =
               (Math.abs(mountainTile.q - openList[i]!.q) +
@@ -661,14 +671,14 @@ export class Utils {
               possibleTiles.push(openList[i]!);
             }
           }
-        } 
+        }
         // after some tiles away river should start to find water
         else {
           possibleTiles = openList;
         }
         if (possibleTiles.length > 0) {
           // determine next tile
-          if(Utils.randomNumber(0, 3) === 0) {
+          if (Utils.randomNumber(0, 3) === 0) {
             // option 1: random tile
             nextTile = possibleTiles[Utils.randomNumber(0, possibleTiles.length - 1)] as Tile;
             lastDistance =
@@ -678,33 +688,38 @@ export class Utils {
               2;
           } else {
             // option 2: sort by distanceToWater first
-            let sortedTiles: {tile: Tile, distanceToWater: number}[] = [];
+            let sortedTiles: { tile: Tile; distanceToWater: number }[] = [];
             possibleTiles.forEach((tile) => {
-              const data = Utils.findNearestTile(grid, {q:tile.q, r:tile.r, s:tile.s}, 20, TerrainType.SHALLOW_WATER);
-              if(data) {
-                sortedTiles.push({tile, distanceToWater: data?.distance});
+              const data = Utils.findNearestTile(
+                grid,
+                tile as CubeCoordinates,
+                20,
+                TerrainType.SHALLOW_WATER,
+              );
+              if (data) {
+                sortedTiles.push({ tile, distanceToWater: data?.distance });
               }
             });
             sortedTiles.sort((a, b) => a.distanceToWater - b.distanceToWater);
             nextTile = sortedTiles[0]!.tile;
           }
           lastDistance =
-              (Math.abs(mountainTile.q - nextTile.q) +
-                Math.abs(mountainTile.r - nextTile.r) +
-                Math.abs(mountainTile.s - nextTile.s)) /
-              2;
+            (Math.abs(mountainTile.q - nextTile.q) +
+              Math.abs(mountainTile.r - nextTile.r) +
+              Math.abs(mountainTile.s - nextTile.s)) /
+            2;
           riverPath.push(nextTile);
         } else {
           // END no possible tiles for river
-          console.log("END: no tiles found to append river");
+          console.log('END: no tiles found to append river');
           closedList.push(openList);
           openList = [];
         }
       }
       // if river is too long, stop computing it
-      if(riverPath.length > maxLength) {
+      if (riverPath.length > maxLength) {
         // END max length exceeded
-        console.log("END: river path exceeded max length of "+maxLength);
+        console.log('END: river path exceeded max length of ' + maxLength);
         closedList.push(openList);
         openList = [];
       }
@@ -727,8 +742,8 @@ export class Utils {
     });
     // special case river path of 1 tile
     if (riverPath.length === 1) {
-     console.log("Error: 1 tile long rivers are not supported.");
-     return;
+      console.log('Error: 1 tile long rivers are not supported.');
+      return;
     }
     // start by finding first river bank tile
     let otherRiverBank: Tile[] = [];
@@ -758,18 +773,25 @@ export class Utils {
         const maxTry = 5;
         let tryCount = 0;
         do {
-          let otherRiverBankNeighbors = Utils.neighbors(grid, otherRiverBank[otherRiverBank.length - 1] as CubeCoordinates);
+          let otherRiverBankNeighbors = Utils.neighbors(
+            grid,
+            otherRiverBank[otherRiverBank.length - 1] as CubeCoordinates,
+          );
           // filter out all river tiles
           otherRiverBankNeighbors = Utils.removeCommonTiles(otherRiverBankNeighbors, riverPath);
           let sharedTiles = Utils.findCommonTiles([riverTileNeighbors[i] as Tile[], otherRiverBankNeighbors as Tile[]]);
           // filter out all neighbor tiles that are part of river
           sharedTiles = Utils.removeCommonTiles(sharedTiles, riverPath);
           sharedTiles.forEach((sharedTile) => {
-            if (sharedTile.terrain != TerrainType.SHALLOW_WATER &&
-                !(sharedTile.q == mountain.coordinates.q && 
-                  sharedTile.r == mountain.coordinates.r && 
-                  sharedTile.s == mountain.coordinates.s)) {
-              if(!otherRiverBank.includes(sharedTile as Tile)) {
+            if (
+              sharedTile.terrain != TerrainType.SHALLOW_WATER &&
+              !(
+                sharedTile.q == mountain.coordinates.q &&
+                sharedTile.r == mountain.coordinates.r &&
+                sharedTile.s == mountain.coordinates.s
+              )
+            ) {
+              if (!otherRiverBank.includes(sharedTile as Tile)) {
                 otherRiverBank.push(sharedTile as Tile);
               }
             }
@@ -838,14 +860,14 @@ export class Utils {
     // create empty dictionary
     let riverDirections = new Map<string, Direction[]>();
     for (let i = 0; i < riverTiles.length; ++i) {
-      for(let j = 0; j < riverTiles.length; ++j) {
-        if(i === j) {
+      for (let j = 0; j < riverTiles.length; ++j) {
+        if (i === j) {
           continue;
         }
-        if(riverTiles[i]!.river != riverTiles[j]!.river) {
+        if (riverTiles[i]!.river != riverTiles[j]!.river) {
           let neighborDirections: Direction[] = [];
           const key = GlobalUtils.coordinateToKey(riverTiles[i] as CubeCoordinates);
-          if(riverDirections.has(key)) {
+          if (riverDirections.has(key)) {
             neighborDirections = riverDirections.get(key) as Direction[];
           }
           const direction = this.detectNeighborhood(riverTiles[i] as Tile, riverTiles[j] as Tile);
