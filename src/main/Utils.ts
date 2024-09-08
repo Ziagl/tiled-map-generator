@@ -658,8 +658,7 @@ export class Utils {
       // select next tile
       if (openList.length > 0 && success === false) {
         let possibleTiles: Tile[] = [];
-        // in near surrounding of mountain,
-        // make sure next tile is further away from mountain as last tile
+        // in near surrounding of mountain, make sure next tile is further away from mountain as last tile
         if (lastDistance < 2) {
           for (let i = 0; i < openList.length; i++) {
             const distanceToMountain =
@@ -690,12 +689,7 @@ export class Utils {
             // option 2: sort by distanceToWater first
             let sortedTiles: { tile: Tile; distanceToWater: number }[] = [];
             possibleTiles.forEach((tile) => {
-              const data = Utils.findNearestTile(
-                grid,
-                tile as CubeCoordinates,
-                20,
-                TerrainType.SHALLOW_WATER,
-              );
+              const data = Utils.findNearestTile(grid, tile as CubeCoordinates, 20, TerrainType.SHALLOW_WATER);
               if (data) {
                 sortedTiles.push({ tile, distanceToWater: data?.distance });
               }
