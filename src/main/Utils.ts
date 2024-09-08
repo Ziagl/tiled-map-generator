@@ -13,7 +13,6 @@ import { MapLayer } from './enums/MapLayer';
 import { MapTemperature } from './enums/MapTemperature';
 import { TileDistribution } from './models/TileDistribution';
 import { Mountain } from './models/Mountain';
-import { WaterFlowType } from './enums/WaterFlowType';
 import { Utils as GlobalUtils } from '@ziagl/tiled-map-utils';
 
 export class Utils {
@@ -557,9 +556,6 @@ export class Utils {
           case MapLayer.LANDSCAPE:
             map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).landscape;
             break;
-          case MapLayer.RIVERS:
-            map[i]![j] = (grid.getHex({ col: j, row: i }) as Tile).river;
-            break;
         }
       }
     }
@@ -575,7 +571,7 @@ export class Utils {
       const radiusRing = ring<Tile>({ center: [coordinates.q, coordinates.r], radius: radius });
       const tiles = grid.traverse(radiusRing);
       tiles.forEach((tile) => {
-        if (tile.river === WaterFlowType.RIVER) {
+        if (tile.landscape === LandscapeType.RIVER) {
           distance = radius;
         }
       });
@@ -647,7 +643,7 @@ export class Utils {
             // END found water tile -> clear open list
             openList = [];
             success = true;
-          } else if (neighbor.terrain != TerrainType.MOUNTAIN && neighbor.river === WaterFlowType.NONE) {
+          } else if (neighbor.terrain != TerrainType.MOUNTAIN && neighbor.landscape === LandscapeType.NONE) {
             // if it is not a mountain tile and not already in closed list
             if (!closedList.some((list) => list.includes(neighbor))) {
               openList.push(neighbor);
@@ -690,12 +686,7 @@ export class Utils {
             // option 2: sort by distanceToWater first
             let sortedTiles: { tile: Tile; distanceToWater: number }[] = [];
             possibleTiles.forEach((tile) => {
-              const data = Utils.findNearestTile(
-                grid,
-                tile as CubeCoordinates,
-                20,
-                TerrainType.SHALLOW_WATER,
-              );
+              const data = Utils.findNearestTile(grid, tile as CubeCoordinates, 20, TerrainType.SHALLOW_WATER);
               if (data) {
                 sortedTiles.push({ tile, distanceToWater: data?.distance });
               }
@@ -801,7 +792,7 @@ export class Utils {
       }
     }
     for (let i = 0; i < otherRiverBank.length; ++i) {
-      otherRiverBank[i]!.river = WaterFlowType.RIVERBANK;
+      otherRiverBank[i]!.landscape = LandscapeType.RIVERBANK;
       riverPath.push(otherRiverBank[i] as Tile);
     }
   }
@@ -864,7 +855,7 @@ export class Utils {
         if (i === j) {
           continue;
         }
-        if (riverTiles[i]!.river != riverTiles[j]!.river) {
+        if (riverTiles[i]!.landscape != riverTiles[j]!.landscape) {
           let neighborDirections: Direction[] = [];
           const key = GlobalUtils.coordinateToKey(riverTiles[i] as CubeCoordinates);
           if (riverDirections.has(key)) {
