@@ -1,6 +1,7 @@
 import { CubeCoordinates, Orientation, defineHex } from 'honeycomb-grid';
 import { TerrainType } from '../enums/TerrainType';
 import { LandscapeType } from '../enums/LandscapeType';
+import { WaterFlowType } from '../enums/WaterFlowType';
 
 export class Tile extends defineHex({
   dimensions: 1,
@@ -11,4 +12,5 @@ export class Tile extends defineHex({
   coordinates: CubeCoordinates = { q: 0, r: 0, s: 0 };
   terrain: TerrainType = TerrainType.SHALLOW_WATER;
   landscape: LandscapeType = LandscapeType.NONE;
+  river: WaterFlowType = WaterFlowType.NONE;
 }

@@ -23,7 +23,7 @@ import { Direction } from 'honeycomb-grid';
 // and generates a map with specific ruleset and exports its data
 // print methods are useful for debug purposes
 export class Generator {
-  private readonly _layers: string[] = ['terrain', 'landscape']; // layers of map
+  private readonly _layers: string[] = ['terrain', 'landscape', 'river']; // layers of map
   private readonly _riverbed: number = 3;
   private _map: number[][][] = []; // base data of map
   private _map_x: number = 0; // x dimension
@@ -88,7 +88,7 @@ export class Generator {
     shaper = new DefaultShaper(temperature, humidity, size, rows, columns);
 
     const mapData = shaper.generate(generator.generate(size), factorRiver, this._riverbed);
-    this._map = [mapData.terrain, mapData.landscape];
+    this._map = [mapData.terrain, mapData.landscape, mapData.rivers];
     this._mapRiverTileDirections = mapData.riverTileDirections;
     this._map_x = generator.rows;
     this._map_y = generator.columns;
@@ -101,7 +101,8 @@ export class Generator {
   public exportMap(): [number[][], number, number] {
     const terrainMap = this.exportTerrainMap();
     const landscapeMap = this.exportLandscapeMap();
-    return [[terrainMap[0], landscapeMap[0]], terrainMap[1], terrainMap[2]];
+    const riverMap = this.exportRiverMap();
+    return [[terrainMap[0], landscapeMap[0], riverMap[0]], terrainMap[1], terrainMap[2]];
   }
 
   public exportTerrainMap(): [number[], number, number] {
@@ -110,6 +111,10 @@ export class Generator {
 
   public exportLandscapeMap(): [number[], number, number] {
     return [this._map[MapLayer.LANDSCAPE]!.flat(), this._map_x, this._map_y];
+  }
+
+  public exportRiverMap(): [number[], number, number] {
+    return [this._map[MapLayer.RIVERS]!.flat(), this._map_x, this._map_y];
   }
 
   public exportRiverTileDirections(): Map<string, Direction[]> {

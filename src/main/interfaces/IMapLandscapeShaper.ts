@@ -16,6 +16,7 @@ export interface IMapLandscapeShaper {
   ): {
     terrain: number[][];
     landscape: number[][];
+    rivers: number[][];
     riverTileDirections: Map<string, Direction[]>;
   };
 }

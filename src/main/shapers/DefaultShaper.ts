@@ -8,6 +8,7 @@ import { LandscapeType } from '../enums/LandscapeType';
 import { MapLayer } from '../enums/MapLayer';
 import { TerrainType } from '../enums/TerrainType';
 import { TileDistribution } from '../models/TileDistribution';
+import { WaterFlowType } from '../enums/WaterFlowType';
 import { MapSize } from '../enums/MapSize';
 import { Mountain } from '../models/Mountain';
 
@@ -33,6 +34,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
   ): {
     terrain: number[][];
     landscape: number[][];
+    rivers: number[][];
     riverTileDirections: Map<string, Direction[]>;
   } {
     // create empty grid
@@ -44,6 +46,7 @@ export class DefaultShaper implements IMapLandscapeShaper {
     grid.forEach((tile) => {
       tile.terrain = flatMap[mapIndex++]! as TerrainType;
       tile.landscape = LandscapeType.NONE;
+      tile.river = WaterFlowType.NONE;
     });
 
     const factorGrass = 0.3;
@@ -195,11 +198,12 @@ export class DefaultShaper implements IMapLandscapeShaper {
 
     const terrain = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.TERRAIN);
     const landscape = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.LANDSCAPE);
+    const rivers = Utils.hexagonToArray(grid, this.rows, this.columns, MapLayer.RIVERS);
     const riverTileDirections = new Map<string, Direction[]>();
     generatedRivers.forEach((river) =>
       Utils.generateRiverTileDirections(river).forEach((value, key) => riverTileDirections.set(key, value)),
     );
-    return { terrain, landscape, riverTileDirections };
+    return { terrain, landscape, rivers, riverTileDirections };
   }
 
   // compute given number of rivers on given grid and returns them, riverbed defines range around
@@ -231,21 +235,21 @@ export class DefaultShaper implements IMapLandscapeShaper {
       const mountainIndex = Utils.randomNumber(0, mountains.length - 1);
       const mountain = mountains[mountainIndex] as Mountain;
       // check if mountain position is possible
-      if ((grid.getHex(mountain.coordinates) as Tile).landscape == LandscapeType.NONE) {
+      if ((grid.getHex(mountain.coordinates) as Tile).river == WaterFlowType.NONE) {
         let riverPath = Utils.createRiverPath(grid, mountain, mountain.distanceToWater + 2);
         // forbid river if it is too short
         if (riverPath.length >= minRiverLength) {
           // mark all river tiles on the grid
           riverPath.forEach((tile) => {
-            tile.landscape = LandscapeType.RIVER;
+            tile.river = WaterFlowType.RIVER;
           });
           // mark all close to river tiles as riverbed
           grid.forEach((tile) => {
-            if (tile.landscape === LandscapeType.NONE) {
+            if (tile.river === WaterFlowType.NONE) {
               // compute distance to river
               const distance = Utils.distanceToRiver(grid, tile, 4);
               if (distance > 0 && distance <= riverbed) {
-                tile.landscape = LandscapeType.RIVERAREA;
+                tile.river = WaterFlowType.RIVERAREA;
               }
             }
           });
